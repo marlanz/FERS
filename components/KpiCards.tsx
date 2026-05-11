@@ -1,7 +1,9 @@
 "use client";
 
+import React from "react";
 import { Cpu, Factory, GitBranch, CheckCircle2, AlertTriangle } from "lucide-react";
 import { SparklineChart } from "./SparklineChart";
+
 
 interface KpiCardProps {
   title: string;

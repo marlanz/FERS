@@ -143,7 +143,7 @@ export function TopGroupsChart({ data }: GroupProps) {
           <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(233,34,39,0.05)" }} />
           <Bar dataKey="count" name="Equipment" fill={BRAND} radius={[0, 4, 4, 0]} maxBarSize={20}
             isAnimationActive animationDuration={900}
-            label={{ position: "right", fontSize: 11, fill: "var(--color-text-muted)", formatter: (v: number) => `${v}` }}
+            label={{ position: "right", fontSize: 11, fill: "var(--color-text-muted)", content: (v) => v != null ? `${v}` : "" }}
           />
         </BarChart>
       </ResponsiveContainer>
