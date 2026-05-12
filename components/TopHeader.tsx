@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { Search, Bell, Download, Sun, Moon, ChevronDown } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useSidebarStore } from "@/lib/store/useSidebarStore";
+import { authClient } from "@/lib/auth-client";
+import Image from "next/image";
+import { useAuthStore } from "@/lib/store/useAuthStore";
 
 interface TopHeaderProps {
   darkMode?: boolean;
@@ -29,7 +31,10 @@ export default function TopHeader({
   searchValue,
 }: TopHeaderProps) {
   const [notifOpen, setNotifOpen] = useState(false);
+  const user = useAuthStore((state) => state.user);
   const path = usePathname();
+
+  const avatar = user?.image;
 
   return (
     <header
@@ -60,64 +65,18 @@ export default function TopHeader({
         </h1>
       </div>
 
-      {/* Search */}
-      <div
-        style={{
-          flex: 1,
-          maxWidth: "380px",
-          marginLeft: "16px",
-          position: "relative",
-        }}
-      >
-        <Search
-          size={15}
-          style={{
-            position: "absolute",
-            left: "10px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            color: "var(--color-text-muted)",
-          }}
-        />
-        <input
-          type="text"
-          value={searchValue}
-          // onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search equipment, factory, code..."
-          style={{
-            width: "100%",
-            height: "34px",
-            paddingLeft: "32px",
-            paddingRight: "12px",
-            border: "1px solid var(--color-border)",
-            borderRadius: "8px",
-            fontSize: "13px",
-            background: "var(--color-surface-2)",
-            color: "var(--color-text-primary)",
-            outline: "none",
-            transition: "border-color 0.15s ease, box-shadow 0.15s ease",
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = "rgb(233,34,39)";
-            e.target.style.boxShadow = "0 0 0 3px rgba(233,34,39,0.1)";
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = "var(--color-border)";
-            e.target.style.boxShadow = "none";
-          }}
-        />
-      </div>
-
       <div style={{ flex: 1 }} />
 
       {/* Export button */}
-      <button
-        className="btn-brand"
-        style={{ height: "34px", fontSize: "13px" }}
-      >
-        <Download size={14} />
-        Export Report
-      </button>
+      {path === "/dashboard" && (
+        <button
+          className="btn-brand"
+          style={{ height: "34px", fontSize: "13px" }}
+        >
+          <Download size={14} />
+          Export Report
+        </button>
+      )}
 
       {/* Dark mode toggle */}
       <button
@@ -151,113 +110,6 @@ export default function TopHeader({
             }}
           />
         </button>
-        {notifOpen && (
-          <div
-            style={{
-              position: "absolute",
-              top: "calc(100% + 8px)",
-              right: 0,
-              width: "300px",
-              background: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "12px",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-              zIndex: 100,
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                padding: "12px 16px",
-                borderBottom: "1px solid var(--color-border)",
-                fontWeight: 600,
-                fontSize: "14px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <span>Notifications</span>
-              <span
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 500,
-                  color: "rgb(233,34,39)",
-                }}
-              >
-                3 new
-              </span>
-            </div>
-            {[
-              {
-                title: "Maintenance Due",
-                desc: "Cẩu trục 15T — B20101029 needs review",
-                time: "2h ago",
-                type: "warning",
-              },
-              {
-                title: "Inspection Alert",
-                desc: "Robot hàn spot MA2010 inspection pending",
-                time: "5h ago",
-                type: "info",
-              },
-              {
-                title: "Equipment Offline",
-                desc: "Máy nén khí GA55+ is inactive",
-                time: "1d ago",
-                type: "error",
-              },
-            ].map((n, i) => (
-              <div
-                key={i}
-                style={{
-                  padding: "12px 16px",
-                  borderBottom:
-                    i < 2 ? "1px solid var(--color-border)" : "none",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "2px",
-                  cursor: "pointer",
-                  transition: "background 0.1s",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "var(--color-surface-2)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "transparent")
-                }
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <span style={{ fontWeight: 600, fontSize: "13px" }}>
-                    {n.title}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: "11px",
-                      color: "var(--color-text-muted)",
-                    }}
-                  >
-                    {n.time}
-                  </span>
-                </div>
-                <span
-                  style={{
-                    fontSize: "12px",
-                    color: "var(--color-text-secondary)",
-                  }}
-                >
-                  {n.desc}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* User avatar */}
@@ -265,24 +117,18 @@ export default function TopHeader({
         className="btn-ghost"
         style={{ height: "34px", padding: "0 10px", gap: "8px" }}
       >
-        <div
-          style={{
-            width: "26px",
-            height: "26px",
-            borderRadius: "50%",
-            background: "linear-gradient(135deg, rgb(233,34,39), #ff6b6b)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            fontSize: "11px",
-            fontWeight: 700,
-            flexShrink: 0,
-          }}
-        >
-          AD
-        </div>
-        <span style={{ fontSize: "13px", fontWeight: 500 }}>Admin</span>
+        {avatar && (
+          <Image
+            src={avatar}
+            alt={user.name || "User avatar"}
+            width={26}
+            height={26}
+            className="rounded-full shrink-0"
+          />
+        )}
+        <span style={{ fontSize: "13px", fontWeight: 500 }}>
+          {user?.name ?? user?.email}
+        </span>
         <ChevronDown size={13} />
       </button>
     </header>

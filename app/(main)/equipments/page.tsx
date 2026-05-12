@@ -13,13 +13,13 @@ import { data as allEquipment } from "@/data";
 import type { Equipment, EquipmentFilters } from "@/types/equipment";
 
 // ── sub-components ──────────────────────────────────────────────────────────
-import EquipmentKpiRow from "@/app/equipments/_components/EquipmentKpiRow";
-import EquipmentToolbar from "@/app/equipments/_components/EquipmentToolbar";
+import EquipmentKpiRow from "@/app/(main)/equipments/_components/EquipmentKpiRow";
+import EquipmentToolbar from "@/app/(main)/equipments/_components/EquipmentToolbar";
 import EquipmentFilterPanel, {
   EMPTY_FILTERS,
-} from "@/app/equipments/_components/EquipmentFilterPanel";
-import EquipmentDataTable from "@/app/equipments/_components/EquipmentDataTable";
-import EquipmentDetailPanel from "@/app/equipments/_components/EquipmentDetailPanel";
+} from "@/app/(main)/equipments/_components/EquipmentFilterPanel";
+import EquipmentDataTable from "@/app/(main)/equipments/_components/EquipmentDataTable";
+import EquipmentDetailPanel from "@/app/(main)/equipments/_components/EquipmentDetailPanel";
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
@@ -61,7 +61,10 @@ function applyFilters(data: Equipment[], f: EquipmentFilters): Equipment[] {
       return false;
     if (f.workshops.length && !f.workshops.includes(r.organization.workshop))
       return false;
-    if (f.workCenters.length && !f.workCenters.includes(r.organization.workCenter))
+    if (
+      f.workCenters.length &&
+      !f.workCenters.includes(r.organization.workCenter)
+    )
       return false;
     if (f.layouts.length && !f.layouts.includes(r.organization.layout))
       return false;
@@ -148,17 +151,50 @@ function LoadingSkeleton() {
             opacity: 1 - i * 0.05,
           }}
         >
-          <div className="skeleton" style={{ width: 14, height: 14, borderRadius: 3, flexShrink: 0 }} />
-          <div className="skeleton" style={{ width: 30, height: 14, borderRadius: 3 }} />
-          <div className="skeleton" style={{ width: 110, height: 14, borderRadius: 3 }} />
-          <div className="skeleton" style={{ flex: 2, height: 14, borderRadius: 3 }} />
-          <div className="skeleton" style={{ width: 110, height: 14, borderRadius: 3 }} />
-          <div className="skeleton" style={{ width: 90, height: 14, borderRadius: 3 }} />
-          <div className="skeleton" style={{ flex: 1, height: 14, borderRadius: 3 }} />
-          <div className="skeleton" style={{ width: 120, height: 14, borderRadius: 3 }} />
-          <div className="skeleton" style={{ width: 100, height: 14, borderRadius: 3 }} />
-          <div className="skeleton" style={{ width: 50, height: 14, borderRadius: 3 }} />
-          <div className="skeleton" style={{ width: 70, height: 20, borderRadius: 9999 }} />
+          <div
+            className="skeleton"
+            style={{ width: 14, height: 14, borderRadius: 3, flexShrink: 0 }}
+          />
+          <div
+            className="skeleton"
+            style={{ width: 30, height: 14, borderRadius: 3 }}
+          />
+          <div
+            className="skeleton"
+            style={{ width: 110, height: 14, borderRadius: 3 }}
+          />
+          <div
+            className="skeleton"
+            style={{ flex: 2, height: 14, borderRadius: 3 }}
+          />
+          <div
+            className="skeleton"
+            style={{ width: 110, height: 14, borderRadius: 3 }}
+          />
+          <div
+            className="skeleton"
+            style={{ width: 90, height: 14, borderRadius: 3 }}
+          />
+          <div
+            className="skeleton"
+            style={{ flex: 1, height: 14, borderRadius: 3 }}
+          />
+          <div
+            className="skeleton"
+            style={{ width: 120, height: 14, borderRadius: 3 }}
+          />
+          <div
+            className="skeleton"
+            style={{ width: 100, height: 14, borderRadius: 3 }}
+          />
+          <div
+            className="skeleton"
+            style={{ width: 50, height: 14, borderRadius: 3 }}
+          />
+          <div
+            className="skeleton"
+            style={{ width: 70, height: 20, borderRadius: 9999 }}
+          />
         </div>
       ))}
     </div>
@@ -181,7 +217,9 @@ function EquipmentPageInner() {
     () => countActiveFilters(paramsToFilters(searchParams)) > 0,
   );
   const [selectedCodes, setSelectedCodes] = useState<Set<string>>(new Set());
-  const [detailEquipment, setDetailEquipment] = useState<Equipment | null>(null);
+  const [detailEquipment, setDetailEquipment] = useState<Equipment | null>(
+    null,
+  );
   const [density, setDensity] = useState<"compact" | "normal" | "comfortable">(
     "normal",
   );
@@ -243,7 +281,10 @@ function EquipmentPageInner() {
     [],
   );
   const handleSearchChange = useCallback((v: string) => setSearch(v), []);
-  const handleRowClick = useCallback((row: Equipment) => setDetailEquipment(row), []);
+  const handleRowClick = useCallback(
+    (row: Equipment) => setDetailEquipment(row),
+    [],
+  );
   const handleCloseDetail = useCallback(() => setDetailEquipment(null), []);
 
   // ── remove one filter chip ──
@@ -356,14 +397,18 @@ function EquipmentPageInner() {
                       transition: "background 0.12s",
                     }}
                     onMouseEnter={(e) =>
-                      (e.currentTarget.style.background = "rgba(233,34,39,0.12)")
+                      (e.currentTarget.style.background =
+                        "rgba(233,34,39,0.12)")
                     }
                     onMouseLeave={(e) =>
-                      (e.currentTarget.style.background = "rgba(233,34,39,0.06)")
+                      (e.currentTarget.style.background =
+                        "rgba(233,34,39,0.06)")
                     }
                   >
                     {val}
-                    <span style={{ fontSize: "13px", lineHeight: 1, opacity: 0.7 }}>
+                    <span
+                      style={{ fontSize: "13px", lineHeight: 1, opacity: 0.7 }}
+                    >
                       ×
                     </span>
                   </button>
@@ -401,7 +446,9 @@ function EquipmentPageInner() {
               flexShrink: 0,
             }}
           >
-            <span style={{ fontSize: "12px", color: "var(--color-text-secondary)" }}>
+            <span
+              style={{ fontSize: "12px", color: "var(--color-text-secondary)" }}
+            >
               Showing{" "}
               <strong style={{ color: "var(--color-text-primary)" }}>
                 {filteredData.length}

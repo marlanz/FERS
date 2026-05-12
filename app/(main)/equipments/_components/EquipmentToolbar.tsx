@@ -2,8 +2,17 @@
 
 import React from "react";
 import {
-  Search, SlidersHorizontal, FileSpreadsheet, Download, Plus,
-  ChevronRight, Home, LayoutGrid, List, Columns, RefreshCw,
+  Search,
+  SlidersHorizontal,
+  FileSpreadsheet,
+  Download,
+  Plus,
+  ChevronRight,
+  Home,
+  LayoutGrid,
+  List,
+  Columns,
+  RefreshCw,
 } from "lucide-react";
 
 interface EquipmentToolbarProps {
@@ -20,8 +29,16 @@ interface EquipmentToolbarProps {
 }
 
 export default function EquipmentToolbar({
-  search, onSearchChange, filterOpen, onToggleFilter, activeFiltersCount,
-  density, onDensityChange, selectedCount, totalCount, onAddEquipment,
+  search,
+  onSearchChange,
+  filterOpen,
+  onToggleFilter,
+  activeFiltersCount,
+  density,
+  onDensityChange,
+  selectedCount,
+  totalCount,
+  onAddEquipment,
 }: EquipmentToolbarProps) {
   return (
     <div
@@ -34,31 +51,6 @@ export default function EquipmentToolbar({
       }}
     >
       {/* Breadcrumb row */}
-      <div
-        style={{
-          padding: "8px 20px",
-          borderBottom: "1px solid var(--color-border)",
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-          fontSize: "12px",
-          color: "var(--color-text-muted)",
-        }}
-      >
-        <Home size={12} />
-        <span>EMS Pro</span>
-        <ChevronRight size={11} />
-        <span style={{ color: "var(--color-text-primary)", fontWeight: 500 }}>Equipment Registry</span>
-        <div style={{ flex: 1 }} />
-        <span style={{ color: "var(--color-text-muted)" }}>
-          {totalCount} total records
-          {selectedCount > 0 && (
-            <span style={{ color: "rgb(233,34,39)", fontWeight: 600, marginLeft: 6 }}>
-              · {selectedCount} selected
-            </span>
-          )}
-        </span>
-      </div>
 
       {/* Actions row */}
       <div
@@ -81,8 +73,14 @@ export default function EquipmentToolbar({
             height: "34px",
             border: `1px solid ${filterOpen || activeFiltersCount > 0 ? "rgb(233,34,39)" : "var(--color-border)"}`,
             borderRadius: "7px",
-            background: filterOpen || activeFiltersCount > 0 ? "rgba(233,34,39,0.06)" : "var(--color-surface)",
-            color: filterOpen || activeFiltersCount > 0 ? "rgb(233,34,39)" : "var(--color-text-secondary)",
+            background:
+              filterOpen || activeFiltersCount > 0
+                ? "rgba(233,34,39,0.06)"
+                : "var(--color-surface)",
+            color:
+              filterOpen || activeFiltersCount > 0
+                ? "rgb(233,34,39)"
+                : "var(--color-text-secondary)",
             fontSize: "13px",
             fontWeight: 500,
             cursor: "pointer",
@@ -191,8 +189,12 @@ export default function EquipmentToolbar({
                 padding: "0 10px",
                 border: "none",
                 borderLeft: i > 0 ? "1px solid var(--color-border)" : "none",
-                background: density === d ? "rgba(233,34,39,0.08)" : "var(--color-surface)",
-                color: density === d ? "rgb(233,34,39)" : "var(--color-text-muted)",
+                background:
+                  density === d
+                    ? "rgba(233,34,39,0.08)"
+                    : "var(--color-surface)",
+                color:
+                  density === d ? "rgb(233,34,39)" : "var(--color-text-muted)",
                 cursor: "pointer",
                 fontSize: "11px",
                 fontWeight: density === d ? 700 : 400,
@@ -225,13 +227,29 @@ export default function EquipmentToolbar({
           >
             <span>{selectedCount} selected:</span>
             <button
-              style={{ background: "none", border: "none", cursor: "pointer", color: "inherit", fontSize: "12px", padding: "0 4px", fontWeight: 600 }}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "inherit",
+                fontSize: "12px",
+                padding: "0 4px",
+                fontWeight: 600,
+              }}
             >
               Export
             </button>
             <span style={{ color: "rgba(233,34,39,0.4)" }}>|</span>
             <button
-              style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", fontSize: "12px", padding: "0 4px", fontWeight: 600 }}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "#ef4444",
+                fontSize: "12px",
+                padding: "0 4px",
+                fontWeight: 600,
+              }}
             >
               Delete
             </button>
