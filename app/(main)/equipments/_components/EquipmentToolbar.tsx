@@ -26,6 +26,7 @@ interface EquipmentToolbarProps {
   selectedCount: number;
   totalCount: number;
   onAddEquipment: () => void;
+  onRefresh?: () => void;
 }
 
 export default function EquipmentToolbar({
@@ -39,6 +40,7 @@ export default function EquipmentToolbar({
   selectedCount,
   totalCount,
   onAddEquipment,
+  onRefresh,
 }: EquipmentToolbarProps) {
   return (
     <div
@@ -261,6 +263,7 @@ export default function EquipmentToolbar({
           className="btn-ghost"
           style={{ height: "34px", padding: "0 10px", flexShrink: 0 }}
           title="Refresh data"
+          onClick={onRefresh}
         >
           <RefreshCw size={14} />
         </button>

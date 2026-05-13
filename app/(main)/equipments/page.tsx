@@ -9,7 +9,7 @@ import React, {
   Suspense,
 } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { data as allEquipment } from "@/data";
+import { useEquipments } from "@/lib/hooks/useEquipments";
 import type { Equipment, EquipmentFilters } from "@/types/equipment";
 
 // ── sub-components ──────────────────────────────────────────────────────────
@@ -95,16 +95,16 @@ function countActiveFilters(f: EquipmentFilters): number {
 
 function filtersToParams(f: EquipmentFilters): Record<string, string> {
   const out: Record<string, string> = {};
-  (Object.keys(f) as (keyof EquipmentFilters)[]).forEach((k) => {
-    if (f[k].length) out[k] = f[k].join(",");
+  (Object.keys(f) as Array<keyof EquipmentFilters>).forEach((k) => {
+    if (f[k].length) out[String(k)] = f[k].join(",");
   });
   return out;
 }
 
 function paramsToFilters(p: URLSearchParams): EquipmentFilters {
   const f = { ...EMPTY_FILTERS };
-  (Object.keys(f) as (keyof EquipmentFilters)[]).forEach((k) => {
-    const v = p.get(k);
+  (Object.keys(f) as Array<keyof EquipmentFilters>).forEach((k) => {
+    const v = p.get(String(k));
     if (v) (f[k] as string[]) = v.split(",");
   });
   return f;
@@ -208,6 +208,9 @@ function EquipmentPageInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  // ── TanStack Query: fetch equipments from API ──
+  const { data: allEquipment = [], isLoading: loading, isError, error, refetch } = useEquipments();
+
   // ── state initialised from URL ──
   const [filters, setFilters] = useState<EquipmentFilters>(() =>
     paramsToFilters(searchParams),
@@ -223,7 +226,6 @@ function EquipmentPageInner() {
   const [density, setDensity] = useState<"compact" | "normal" | "comfortable">(
     "normal",
   );
-  const [loading, setLoading] = useState(true);
 
   // ── debounced search ──
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -236,12 +238,6 @@ function EquipmentPageInner() {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, [search]);
-
-  // ── simulate async data load ──
-  useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 550);
-    return () => clearTimeout(t);
-  }, []);
 
   // ── persist state to URL (shallow replace) ──
   useEffect(() => {
@@ -265,13 +261,13 @@ function EquipmentPageInner() {
   }, []);
 
   // ── derived ──
-  const filterOptions = useMemo(() => buildFilterOptions(allEquipment), []);
+  const filterOptions = useMemo(() => buildFilterOptions(allEquipment), [allEquipment]);
 
   const filteredData = useMemo(() => {
     let d = applySearch(allEquipment, debouncedSearch);
     d = applyFilters(d, filters);
     return d;
-  }, [debouncedSearch, filters]);
+  }, [allEquipment, debouncedSearch, filters]);
 
   const afCount = countActiveFilters(filters);
 
@@ -290,9 +286,9 @@ function EquipmentPageInner() {
   // ── remove one filter chip ──
   const removeFilterValue = useCallback(
     (key: keyof EquipmentFilters, val: string) => {
-      setFilters((prev) => ({
+      setFilters((prev: EquipmentFilters) => ({
         ...prev,
-        [key]: prev[key].filter((v) => v !== val),
+        [key]: (prev[key] as string[]).filter((v: string) => v !== val),
       }));
     },
     [],
@@ -320,7 +316,43 @@ function EquipmentPageInner() {
         selectedCount={selectedCodes.size}
         totalCount={allEquipment.length}
         onAddEquipment={() => {}}
+        onRefresh={() => refetch()}
       />
+
+      {/* ── API error banner ── */}
+      {isError && (
+        <div
+          style={{
+            padding: "10px 20px",
+            background: "rgba(239,68,68,0.08)",
+            borderBottom: "1px solid rgba(239,68,68,0.25)",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            fontSize: "13px",
+            color: "#ef4444",
+          }}
+        >
+          <span style={{ fontWeight: 600 }}>⚠ Failed to load equipment data:</span>
+          <span style={{ opacity: 0.85 }}>{error instanceof Error ? error.message : "Unknown error"}</span>
+          <button
+            onClick={() => refetch()}
+            style={{
+              marginLeft: "auto",
+              padding: "4px 12px",
+              border: "1px solid rgba(239,68,68,0.4)",
+              borderRadius: "6px",
+              background: "rgba(239,68,68,0.1)",
+              color: "#ef4444",
+              fontSize: "12px",
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* ── KPI summary strip ── */}
       <EquipmentKpiRow data={allEquipment} />
@@ -376,8 +408,8 @@ function EquipmentPageInner() {
                 Active:
               </span>
 
-              {(Object.keys(filters) as (keyof EquipmentFilters)[]).map((key) =>
-                filters[key].map((val) => (
+              {(Object.keys(filters) as Array<keyof EquipmentFilters>).map((key) =>
+                (filters[key] as string[]).map((val: string) => (
                   <button
                     key={`${key}-${val}`}
                     onClick={() => removeFilterValue(key, val)}

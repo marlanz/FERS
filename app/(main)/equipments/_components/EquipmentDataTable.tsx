@@ -30,7 +30,7 @@ function getVal(r: Equipment, k: SortKey): string | number {
     case "group2": return r.equipmentGroup.level2;
     case "brand": return r.manufacturer.brand;
     case "model": return r.manufacturer.model;
-    case "produceYear": return r.manufacturer.produceYear;
+    case "produceYear": return r.manufacturer.produceYear ?? "";
     case "status": return r.status ?? "active";
     default: return "";
   }

@@ -153,7 +153,7 @@ function getVal(row: Equipment, key: SortKey): string | number {
     case "brand":
       return row.manufacturer.brand;
     case "produceYear":
-      return row.manufacturer.produceYear;
+      return row.manufacturer.produceYear ?? "";
     case "group2":
       return row.equipmentGroup.level2;
     default:

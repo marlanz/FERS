@@ -47,7 +47,10 @@ export default function DashboardContent({
     [],
   );
   const produceYears = useMemo(
-    () => [...new Set(data.map((d) => d.manufacturer.produceYear))].sort(),
+    () =>
+      [...new Set(data.map((d) => d.manufacturer.produceYear))]
+        .filter((y): y is number => y !== null)
+        .sort(),
     [],
   );
 
@@ -167,8 +170,9 @@ export default function DashboardContent({
   const produceYearData = useMemo(() => {
     const map: Record<number, number> = {};
     filtered.forEach((d) => {
-      map[d.manufacturer.produceYear] =
-        (map[d.manufacturer.produceYear] || 0) + 1;
+      const year = d.manufacturer.produceYear;
+      if (year === null) return;
+      map[year] = (map[year] || 0) + 1;
     });
     return Object.entries(map)
       .map(([year, count]) => ({ year: Number(year), count }))
