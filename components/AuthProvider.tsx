@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
 import { useAuthStore } from "@/lib/store/useAuthStore";
+import { usePathname } from "next/navigation";
+import { useRouter } from "next/router";
 
 export default function AuthProvider({
   children,
@@ -11,7 +13,9 @@ export default function AuthProvider({
 }) {
   const { data: session, isPending } = authClient.useSession();
 
-  const { setUser, setLoading } = useAuthStore();
+  const { setUser, setLoading, loading } = useAuthStore();
+
+  const pathname = usePathname();
 
   useEffect(() => {
     if (isPending) return;

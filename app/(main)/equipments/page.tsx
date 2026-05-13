@@ -20,6 +20,7 @@ import EquipmentFilterPanel, {
 } from "@/app/(main)/equipments/_components/EquipmentFilterPanel";
 import EquipmentDataTable from "@/app/(main)/equipments/_components/EquipmentDataTable";
 import EquipmentDetailPanel from "@/app/(main)/equipments/_components/EquipmentDetailPanel";
+import ImportJsonModal from "@/app/(main)/equipments/_components/ImportJsonModal";
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
@@ -226,6 +227,7 @@ function EquipmentPageInner() {
   const [density, setDensity] = useState<"compact" | "normal" | "comfortable">(
     "normal",
   );
+  const [importJsonOpen, setImportJsonOpen] = useState(false);
 
   // ── debounced search ──
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -317,6 +319,7 @@ function EquipmentPageInner() {
         totalCount={allEquipment.length}
         onAddEquipment={() => {}}
         onRefresh={() => refetch()}
+        onImportJson={() => setImportJsonOpen(true)}
       />
 
       {/* ── API error banner ── */}
@@ -546,6 +549,16 @@ function EquipmentPageInner() {
       <EquipmentDetailPanel
         equipment={detailEquipment}
         onClose={handleCloseDetail}
+      />
+
+      {/* ── JSON Import modal ── */}
+      <ImportJsonModal
+        open={importJsonOpen}
+        onClose={() => setImportJsonOpen(false)}
+        onSuccess={() => {
+          refetch();
+          setImportJsonOpen(false);
+        }}
       />
     </div>
   );
