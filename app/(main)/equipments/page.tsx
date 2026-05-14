@@ -21,6 +21,7 @@ import EquipmentFilterPanel, {
 import EquipmentDataTable from "@/app/(main)/equipments/_components/EquipmentDataTable";
 import EquipmentDetailPanel from "@/app/(main)/equipments/_components/EquipmentDetailPanel";
 import ImportJsonModal from "@/app/(main)/equipments/_components/ImportJsonModal";
+import ImportExcelModal from "./_components/ImportExcelModal";
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
@@ -210,7 +211,13 @@ function EquipmentPageInner() {
   const searchParams = useSearchParams();
 
   // ── TanStack Query: fetch equipments from API ──
-  const { data: allEquipment = [], isLoading: loading, isError, error, refetch } = useEquipments();
+  const {
+    data: allEquipment = [],
+    isLoading: loading,
+    isError,
+    error,
+    refetch,
+  } = useEquipments();
 
   // ── state initialised from URL ──
   const [filters, setFilters] = useState<EquipmentFilters>(() =>
@@ -224,10 +231,14 @@ function EquipmentPageInner() {
   const [detailEquipment, setDetailEquipment] = useState<Equipment | null>(
     null,
   );
+
+  // set fontsize
   const [density, setDensity] = useState<"compact" | "normal" | "comfortable">(
     "normal",
   );
+
   const [importJsonOpen, setImportJsonOpen] = useState(false);
+  const [importExcelOpen, setImportExcelOpen] = useState(false);
 
   // ── debounced search ──
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -242,7 +253,15 @@ function EquipmentPageInner() {
   }, [search]);
 
   // ── persist state to URL (shallow replace) ──
+  // Skip the very first render — state is already initialised from the URL,
+  // so calling router.replace on mount is a no-op that still triggers a
+  // full route re-render in Next.js App Router.
+  const isMountedRef = useRef(false);
   useEffect(() => {
+    if (!isMountedRef.current) {
+      isMountedRef.current = true;
+      return;
+    }
     const params = new URLSearchParams();
     if (debouncedSearch) params.set("q", debouncedSearch);
     Object.entries(filtersToParams(filters)).forEach(([k, v]) =>
@@ -263,7 +282,10 @@ function EquipmentPageInner() {
   }, []);
 
   // ── derived ──
-  const filterOptions = useMemo(() => buildFilterOptions(allEquipment), [allEquipment]);
+  const filterOptions = useMemo(
+    () => buildFilterOptions(allEquipment),
+    [allEquipment],
+  );
 
   const filteredData = useMemo(() => {
     let d = applySearch(allEquipment, debouncedSearch);
@@ -320,6 +342,7 @@ function EquipmentPageInner() {
         onAddEquipment={() => {}}
         onRefresh={() => refetch()}
         onImportJson={() => setImportJsonOpen(true)}
+        onImportExcel={() => setImportExcelOpen(true)}
       />
 
       {/* ── API error banner ── */}
@@ -336,8 +359,12 @@ function EquipmentPageInner() {
             color: "#ef4444",
           }}
         >
-          <span style={{ fontWeight: 600 }}>⚠ Failed to load equipment data:</span>
-          <span style={{ opacity: 0.85 }}>{error instanceof Error ? error.message : "Unknown error"}</span>
+          <span style={{ fontWeight: 600 }}>
+            ⚠ Failed to load equipment data:
+          </span>
+          <span style={{ opacity: 0.85 }}>
+            {error instanceof Error ? error.message : "Unknown error"}
+          </span>
           <button
             onClick={() => refetch()}
             style={{
@@ -411,43 +438,48 @@ function EquipmentPageInner() {
                 Active:
               </span>
 
-              {(Object.keys(filters) as Array<keyof EquipmentFilters>).map((key) =>
-                (filters[key] as string[]).map((val: string) => (
-                  <button
-                    key={`${key}-${val}`}
-                    onClick={() => removeFilterValue(key, val)}
-                    aria-label={`Remove filter: ${val}`}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "3px",
-                      padding: "1px 7px 1px 9px",
-                      borderRadius: "9999px",
-                      border: "1px solid rgba(233,34,39,0.25)",
-                      background: "rgba(233,34,39,0.06)",
-                      color: "rgb(233,34,39)",
-                      fontSize: "11px",
-                      fontWeight: 500,
-                      cursor: "pointer",
-                      transition: "background 0.12s",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.background =
-                        "rgba(233,34,39,0.12)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.background =
-                        "rgba(233,34,39,0.06)")
-                    }
-                  >
-                    {val}
-                    <span
-                      style={{ fontSize: "13px", lineHeight: 1, opacity: 0.7 }}
+              {(Object.keys(filters) as Array<keyof EquipmentFilters>).map(
+                (key) =>
+                  (filters[key] as string[]).map((val: string) => (
+                    <button
+                      key={`${key}-${val}`}
+                      onClick={() => removeFilterValue(key, val)}
+                      aria-label={`Remove filter: ${val}`}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "3px",
+                        padding: "1px 7px 1px 9px",
+                        borderRadius: "9999px",
+                        border: "1px solid rgba(233,34,39,0.25)",
+                        background: "rgba(233,34,39,0.06)",
+                        color: "rgb(233,34,39)",
+                        fontSize: "11px",
+                        fontWeight: 500,
+                        cursor: "pointer",
+                        transition: "background 0.12s",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background =
+                          "rgba(233,34,39,0.12)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background =
+                          "rgba(233,34,39,0.06)")
+                      }
                     >
-                      ×
-                    </span>
-                  </button>
-                )),
+                      {val}
+                      <span
+                        style={{
+                          fontSize: "13px",
+                          lineHeight: 1,
+                          opacity: 0.7,
+                        }}
+                      >
+                        ×
+                      </span>
+                    </button>
+                  )),
               )}
 
               <button
@@ -558,6 +590,16 @@ function EquipmentPageInner() {
         onSuccess={() => {
           refetch();
           setImportJsonOpen(false);
+        }}
+      />
+
+      {/* ── Excel Import modal ── */}
+      <ImportExcelModal
+        open={importExcelOpen}
+        onClose={() => setImportExcelOpen(false)}
+        onSuccess={() => {
+          refetch();
+          setImportExcelOpen(false);
         }}
       />
     </div>

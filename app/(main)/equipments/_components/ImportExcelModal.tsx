@@ -3,20 +3,13 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Upload,
-  FileJson,
+  FileSpreadsheet,
   CheckCircle2,
   XCircle,
   AlertTriangle,
   X,
   Loader2,
-  ClipboardPaste,
 } from "lucide-react";
-import { parseJsonText, sanitizeBatch } from "@/lib/utils/equipmentSanitizer";
-import type {
-  ParseError,
-  SanitizedEquipment,
-} from "@/lib/utils/equipmentSanitizer";
-import type { ImportSummary } from "@/app/api/equipments/import-json/route";
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 
@@ -106,113 +99,16 @@ function Toast({ toast, onClose }: { toast: ToastState; onClose: () => void }) {
   );
 }
 
-// ─── Shared validation-result UI ──────────────────────────────────────────────
-
-function ValidationResult({
-  validCount,
-  parseErrors,
-}: {
-  validCount: number;
-  parseErrors: ParseError[];
-}) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <div style={{ display: "flex", gap: 8 }}>
-        <div
-          style={{
-            flex: 1,
-            padding: "10px 14px",
-            background: "rgba(34,197,94,0.07)",
-            border: "1px solid rgba(34,197,94,0.25)",
-            borderRadius: 8,
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            fontSize: 13,
-          }}
-        >
-          <CheckCircle2 size={15} style={{ color: "#22c55e", flexShrink: 0 }} />
-          <span style={{ fontWeight: 600, color: "#22c55e" }}>
-            {validCount}
-          </span>
-          <span style={{ color: "var(--color-text-secondary)" }}>
-            valid records
-          </span>
-        </div>
-        {parseErrors.length > 0 && (
-          <div
-            style={{
-              flex: 1,
-              padding: "10px 14px",
-              background: "rgba(234,179,8,0.07)",
-              border: "1px solid rgba(234,179,8,0.25)",
-              borderRadius: 8,
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              fontSize: 13,
-            }}
-          >
-            <AlertTriangle
-              size={15}
-              style={{ color: "#eab308", flexShrink: 0 }}
-            />
-            <span style={{ fontWeight: 600, color: "#eab308" }}>
-              {parseErrors.length}
-            </span>
-            <span style={{ color: "var(--color-text-secondary)" }}>
-              will be skipped
-            </span>
-          </div>
-        )}
-      </div>
-      {parseErrors.length > 0 && (
-        <div
-          style={{
-            maxHeight: 130,
-            overflowY: "auto",
-            border: "1px solid var(--color-border)",
-            borderRadius: 8,
-            fontSize: 11,
-          }}
-        >
-          {parseErrors.map((err) => (
-            <div
-              key={err.index}
-              style={{
-                padding: "7px 12px",
-                borderBottom: "1px solid var(--color-border)",
-                display: "flex",
-                gap: 8,
-                color: "var(--color-text-secondary)",
-              }}
-            >
-              <span style={{ color: "var(--color-text-muted)", flexShrink: 0 }}>
-                Row {err.index + 1}
-              </span>
-              {err.equipmentCode && (
-                <span
-                  style={{
-                    color: "var(--color-text-primary)",
-                    fontWeight: 500,
-                    flexShrink: 0,
-                  }}
-                >
-                  [{err.equipmentCode}]
-                </span>
-              )}
-              <span>{err.messages.join("; ")}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 // ─── Done summary ─────────────────────────────────────────────────────────────
 
-function DoneSummary({ summary }: { summary: ImportSummary }) {
+interface UploadResult {
+  success: boolean;
+  inserted: number;
+  total: number;
+  error?: string;
+}
+
+function DoneSummary({ result }: { result: UploadResult }) {
   return (
     <div
       style={{
@@ -244,16 +140,44 @@ function DoneSummary({ summary }: { summary: ImportSummary }) {
           Import Complete
         </span>
       </div>
+      {(
+        [
+          {
+            label: "Records inserted",
+            value: result.inserted,
+            color: "#22c55e",
+          },
+          {
+            label: "Skipped (duplicates / invalid)",
+            value: result.total - result.inserted,
+            color: "#eab308",
+          },
+        ] as const
+      ).map(({ label, value, color }) => (
+        <div
+          key={label}
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            fontSize: 13,
+            padding: "6px 0",
+            borderBottom: "1px solid var(--color-border)",
+          }}
+        >
+          <span style={{ color: "var(--color-text-secondary)" }}>{label}</span>
+          <span style={{ fontWeight: 700, color, fontSize: 15 }}>{value}</span>
+        </div>
+      ))}
     </div>
   );
 }
 
 // ─── Main modal ───────────────────────────────────────────────────────────────
 
-type InputTab = "file" | "text";
-type ModalStep = "idle" | "validating" | "ready" | "uploading" | "done";
+type ModalStep = "idle" | "ready" | "uploading" | "done";
 
-interface ImportJsonModalProps {
+interface ImportExcelModalProps {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
@@ -263,31 +187,26 @@ export default function ImportExcelModal({
   open,
   onClose,
   onSuccess,
-}: ImportJsonModalProps) {
+}: ImportExcelModalProps) {
   const [step, setStep] = useState<ModalStep>("idle");
   const [dragOver, setDragOver] = useState(false);
   const [fileName, setFileName] = useState("");
-  const [pasteText, setPasteText] = useState("");
-  const [validCount, setValidCount] = useState(0);
-  const [parseErrors, setParseErrors] = useState<ParseError[]>([]);
-  const [summary, setSummary] = useState<ImportSummary | null>(null);
   const [fatalError, setFatalError] = useState("");
+  const [result, setResult] = useState<UploadResult | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const parsedRef = useRef<SanitizedEquipment[]>([]);
+  const fileRef = useRef<File | null>(null);
 
   // Reset when opened
   useEffect(() => {
     if (open) {
+      setStep("idle");
       setDragOver(false);
       setFileName("");
-      setPasteText("");
-      setValidCount(0);
-      setParseErrors([]);
-      setSummary(null);
       setFatalError("");
-      parsedRef.current = [];
+      setResult(null);
+      fileRef.current = null;
     }
   }, [open]);
 
@@ -303,61 +222,19 @@ export default function ImportExcelModal({
 
   const showToast = useCallback((t: ToastState) => setToast(t), []);
 
-  // Reset validation state when switching tabs
-  const switchTab = useCallback((t: InputTab) => {
-    setTab(t);
-    setStep("idle");
-    setFatalError("");
-    setParseErrors([]);
-    setValidCount(0);
-    parsedRef.current = [];
-  }, []);
-
-  // ── Core validation ────────────────────────────────────────────────────────
-
-  const runValidation = useCallback((text: string, name = "") => {
-    setStep("validating");
-    setFatalError("");
-    setParseErrors([]);
-    if (name) setFileName(name);
-
-    try {
-      const raw = parseJsonText(text);
-      const { valid, errors } = sanitizeBatch(raw);
-      parsedRef.current = valid;
-      setValidCount(valid.length);
-      setParseErrors(errors);
-      setStep("ready");
-    } catch (err) {
-      setFatalError(
-        err instanceof Error ? err.message : "Failed to parse JSON.",
-      );
-      setStep("idle");
-    }
-  }, []);
-
   // ── File handling ──────────────────────────────────────────────────────────
 
-  const processFile = useCallback(
-    (file: File) => {
-      if (!file.name.endsWith(".json")) {
-        setFatalError("Please select a valid .json file.");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target?.result;
-        if (typeof text !== "string") {
-          setFatalError("Could not read file.");
-          return;
-        }
-        runValidation(text, file.name);
-      };
-      reader.onerror = () => setFatalError("Failed to read the file.");
-      reader.readAsText(file);
-    },
-    [runValidation],
-  );
+  const processFile = useCallback((file: File) => {
+    const name = file.name.toLowerCase();
+    if (!name.endsWith(".xlsx") && !name.endsWith(".xls")) {
+      setFatalError("Please select a valid Excel file (.xlsx or .xls).");
+      return;
+    }
+    setFatalError("");
+    setFileName(file.name);
+    fileRef.current = file;
+    setStep("ready");
+  }, []);
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -378,49 +255,45 @@ export default function ImportExcelModal({
     [processFile],
   );
 
-  // ── Paste / text handling ──────────────────────────────────────────────────
-
-  const handleValidateText = useCallback(() => {
-    const trimmed = pasteText.trim();
-    if (!trimmed) {
-      setFatalError("Please paste some JSON first.");
-      return;
-    }
-    runValidation(trimmed);
-  }, [pasteText, runValidation]);
-
-  // ── Import ─────────────────────────────────────────────────────────────────
+  // ── Upload ─────────────────────────────────────────────────────────────────
 
   const handleImport = useCallback(async () => {
-    if (parsedRef.current.length === 0) return;
+    if (!fileRef.current) return;
     setStep("uploading");
+    setFatalError("");
     try {
-      const res = await fetch("/api/equipments/import-json", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsedRef.current),
-      });
-      const result: ImportSummary = await res.json();
-      if (!res.ok && !("inserted" in result))
-        throw new Error(
-          (result as { error?: string }).error ?? "Import failed.",
-        );
+      const formData = new FormData();
+      formData.append("file", fileRef.current);
 
-      setSummary(result);
+      const res = await fetch("/api/equipments/import-excel", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data: UploadResult = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error ?? "Upload failed.");
+      }
+
+      setResult(data);
       setStep("done");
+
+      const skipped = data.total - data.inserted;
       const lines = [
-        `✓ Inserted ${result.inserted} records`,
-        result.skipped > 0 ? `⊘ Skipped ${result.skipped} duplicates` : "",
-        result.errors > 0 ? `⚠ ${result.errors} invalid records` : "",
+        `✓ Inserted ${data.inserted} records`,
+        skipped > 0 ? `⊘ Skipped ${skipped} rows` : "",
       ]
         .filter(Boolean)
         .join("\n");
+
       showToast({
-        type: result.inserted > 0 ? "success" : "info",
+        type: data.inserted > 0 ? "success" : "info",
         title: "Import complete",
         message: lines,
       });
-      if (result.inserted > 0) onSuccess();
+
+      if (data.inserted > 0) onSuccess();
     } catch (err) {
       showToast({
         type: "error",
@@ -436,28 +309,9 @@ export default function ImportExcelModal({
       <Toast toast={toast} onClose={() => setToast(null)} />
     ) : null;
 
-  const isLoading = step === "validating" || step === "uploading";
-  const canSubmit = step === "ready" && validCount > 0;
+  const isLoading = step === "uploading";
+  const canSubmit = step === "ready" && !!fileRef.current;
   const isDone = step === "done";
-
-  // ── Tab styles helper ──────────────────────────────────────────────────────
-
-  const tabStyle = (active: boolean): React.CSSProperties => ({
-    flex: 1,
-    height: 36,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    border: "none",
-    cursor: "pointer",
-    fontSize: 13,
-    fontWeight: active ? 600 : 400,
-    borderBottom: active ? "2px solid rgb(233,34,39)" : "2px solid transparent",
-    background: "none",
-    color: active ? "rgb(233,34,39)" : "var(--color-text-secondary)",
-    transition: "all 0.15s",
-  });
 
   return (
     <>
@@ -478,14 +332,14 @@ export default function ImportExcelModal({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Import JSON"
+        aria-label="Import Excel"
         style={{
           position: "fixed",
           top: "50%",
           left: "50%",
           transform: "translate(-50%,-50%)",
           zIndex: 1001,
-          width: "min(560px, 95vw)",
+          width: "min(520px, 95vw)",
           background: "var(--color-surface)",
           border: "1px solid var(--color-border)",
           borderRadius: 14,
@@ -512,14 +366,14 @@ export default function ImportExcelModal({
               width: 36,
               height: 36,
               borderRadius: 9,
-              background: "rgba(233,34,39,0.1)",
+              background: "rgba(34,197,94,0.1)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
             }}
           >
-            <FileJson size={18} style={{ color: "rgb(233,34,39)" }} />
+            <FileSpreadsheet size={18} style={{ color: "#22c55e" }} />
           </div>
           <div>
             <div
@@ -529,7 +383,7 @@ export default function ImportExcelModal({
                 color: "var(--color-text-primary)",
               }}
             >
-              Import JSON
+              Import Excel
             </div>
             <div
               style={{
@@ -538,11 +392,11 @@ export default function ImportExcelModal({
                 marginTop: 1,
               }}
             >
-              Bulk import equipment records
+              Upload an .xlsx or .xls file to bulk-import equipment
             </div>
           </div>
           <button
-            id="import-json-modal-close"
+            id="import-excel-modal-close"
             onClick={onClose}
             aria-label="Close"
             style={{
@@ -561,32 +415,6 @@ export default function ImportExcelModal({
           </button>
         </div>
 
-        {/* Tab bar — only show before done */}
-        {!isDone && (
-          <div
-            style={{
-              display: "flex",
-              borderBottom: "1px solid var(--color-border)",
-              background: "var(--color-surface-2)",
-            }}
-          >
-            <button
-              id="import-tab-file"
-              style={tabStyle(tab === "file")}
-              onClick={() => switchTab("file")}
-            >
-              <Upload size={13} /> Upload File
-            </button>
-            <button
-              id="import-tab-text"
-              style={tabStyle(tab === "text")}
-              onClick={() => switchTab("text")}
-            >
-              <ClipboardPaste size={13} /> Paste JSON
-            </button>
-          </div>
-        )}
-
         {/* Body */}
         <div
           style={{
@@ -594,11 +422,10 @@ export default function ImportExcelModal({
             display: "flex",
             flexDirection: "column",
             gap: 16,
-            minHeight: 0,
           }}
         >
-          {/* ── Upload File tab ── */}
-          {tab === "file" && !isDone && (
+          {/* Drop zone — hide after done */}
+          {!isDone && (
             <div
               onDragOver={(e) => {
                 e.preventDefault();
@@ -608,7 +435,7 @@ export default function ImportExcelModal({
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
               style={{
-                border: `2px dashed ${dragOver ? "rgb(233,34,39)" : "var(--color-border)"}`,
+                border: `2px dashed ${dragOver ? "#22c55e" : fileName ? "rgba(34,197,94,0.5)" : "var(--color-border)"}`,
                 borderRadius: 10,
                 padding: "32px 20px",
                 display: "flex",
@@ -618,35 +445,39 @@ export default function ImportExcelModal({
                 gap: 10,
                 cursor: "pointer",
                 background: dragOver
-                  ? "rgba(233,34,39,0.04)"
-                  : "var(--color-surface-2)",
+                  ? "rgba(34,197,94,0.04)"
+                  : fileName
+                    ? "rgba(34,197,94,0.03)"
+                    : "var(--color-surface-2)",
                 transition: "border-color 0.15s, background 0.15s",
                 textAlign: "center",
               }}
             >
               <input
                 ref={fileInputRef}
-                id="import-json-file-input"
+                id="import-excel-file-input"
                 type="file"
-                accept=".json"
+                accept=".xlsx,.xls"
                 onChange={handleFileChange}
                 style={{ display: "none" }}
               />
-              {step === "validating" ? (
+              {isLoading ? (
                 <Loader2
                   size={32}
                   style={{
-                    color: "rgb(233,34,39)",
+                    color: "#22c55e",
                     animation: "spin 1s linear infinite",
                   }}
                 />
               ) : (
-                <Upload
+                <FileSpreadsheet
                   size={32}
                   style={{
                     color: dragOver
-                      ? "rgb(233,34,39)"
-                      : "var(--color-text-muted)",
+                      ? "#22c55e"
+                      : fileName
+                        ? "#22c55e"
+                        : "var(--color-text-muted)",
                   }}
                 />
               )}
@@ -658,13 +489,13 @@ export default function ImportExcelModal({
                     color: "var(--color-text-primary)",
                   }}
                 >
-                  {step === "validating"
-                    ? "Parsing file…"
+                  {isLoading
+                    ? "Uploading…"
                     : fileName
                       ? fileName
-                      : "Drop your JSON file here"}
+                      : "Drop your Excel file here"}
                 </div>
-                {step !== "validating" && (
+                {!isLoading && (
                   <div
                     style={{
                       fontSize: 11,
@@ -674,97 +505,32 @@ export default function ImportExcelModal({
                   >
                     {fileName
                       ? "Click to choose a different file"
-                      : "or click to browse · .json only"}
+                      : "or click to browse · .xlsx, .xls"}
                   </div>
                 )}
               </div>
             </div>
           )}
 
-          {/* ── Paste JSON tab ── */}
-          {tab === "text" && !isDone && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <textarea
-                id="import-json-textarea"
-                value={pasteText}
-                onChange={(e) => {
-                  setPasteText(e.target.value);
-                  // reset validation when user edits
-                  if (step === "ready") {
-                    setStep("idle");
-                    setValidCount(0);
-                    setParseErrors([]);
-                    parsedRef.current = [];
-                  }
-                }}
-                placeholder={`Paste a JSON array here, e.g.\n[\n  { "equipmentName": "Robot Arm", "equipmentCode": "RB001" }\n]`}
-                spellCheck={false}
-                style={{
-                  width: "100%",
-                  height: 200,
-                  padding: "12px 14px",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: 9,
-                  background: "var(--color-surface-2)",
-                  color: "var(--color-text-primary)",
-                  fontSize: 12,
-                  fontFamily: "monospace",
-                  lineHeight: 1.6,
-                  resize: "vertical",
-                  outline: "none",
-                  transition: "border-color 0.15s, box-shadow 0.15s",
-                  boxSizing: "border-box",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "rgb(233,34,39)";
-                  e.target.style.boxShadow = "0 0 0 3px rgba(233,34,39,0.08)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "var(--color-border)";
-                  e.target.style.boxShadow = "none";
-                }}
-              />
-              <button
-                id="import-json-validate-btn"
-                onClick={handleValidateText}
-                disabled={isLoading || !pasteText.trim()}
-                style={{
-                  alignSelf: "flex-end",
-                  height: 34,
-                  padding: "0 18px",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: 7,
-                  background: "var(--color-surface)",
-                  fontSize: 13,
-                  fontWeight: 500,
-                  color: "var(--color-text-primary)",
-                  cursor: pasteText.trim() ? "pointer" : "not-allowed",
-                  opacity: pasteText.trim() ? 1 : 0.5,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  transition: "border-color 0.15s",
-                }}
-                onMouseEnter={(e) => {
-                  if (pasteText.trim())
-                    e.currentTarget.style.borderColor = "rgb(233,34,39)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "var(--color-border)";
-                }}
-              >
-                {step === "validating" ? (
-                  <>
-                    <Loader2
-                      size={13}
-                      style={{ animation: "spin 1s linear infinite" }}
-                    />{" "}
-                    Validating…
-                  </>
-                ) : (
-                  "Validate JSON"
-                )}
-              </button>
+          {/* Column hint */}
+          {!isDone && (
+            <div
+              style={{
+                fontSize: 11,
+                color: "var(--color-text-muted)",
+                background: "var(--color-surface-2)",
+                border: "1px solid var(--color-border)",
+                borderRadius: 8,
+                padding: "8px 12px",
+                lineHeight: 1.6,
+              }}
+            >
+              <strong style={{ color: "var(--color-text-secondary)" }}>
+                Expected columns:
+              </strong>{" "}
+              no, equipmentName, equipmentCode, groupLevel1–4, legalEntity,
+              factory, workshop, layout, workCenter, area, country, brand,
+              model, produceYear, specification, installationLocation, note
             </div>
           )}
 
@@ -788,16 +554,8 @@ export default function ImportExcelModal({
             </div>
           )}
 
-          {/* Validation result */}
-          {(step === "ready" || step === "uploading") && (
-            <ValidationResult
-              validCount={validCount}
-              parseErrors={parseErrors}
-            />
-          )}
-
           {/* Done */}
-          {isDone && summary && <DoneSummary summary={summary} />}
+          {isDone && result && <DoneSummary result={result} />}
         </div>
 
         {/* Footer */}
@@ -812,7 +570,7 @@ export default function ImportExcelModal({
           }}
         >
           <button
-            id="import-json-cancel-btn"
+            id="import-excel-cancel-btn"
             onClick={onClose}
             style={{
               height: 34,
@@ -831,7 +589,7 @@ export default function ImportExcelModal({
 
           {!isDone && (
             <button
-              id="import-json-submit-btn"
+              id="import-excel-submit-btn"
               onClick={handleImport}
               disabled={!canSubmit || isLoading}
               style={{
@@ -841,8 +599,8 @@ export default function ImportExcelModal({
                 borderRadius: 7,
                 background:
                   canSubmit && !isLoading
-                    ? "rgb(233,34,39)"
-                    : "rgba(233,34,39,0.4)",
+                    ? "#22c55e"
+                    : "rgba(34,197,94,0.4)",
                 color: "white",
                 fontSize: 13,
                 fontWeight: 600,
@@ -853,15 +611,13 @@ export default function ImportExcelModal({
                 transition: "background 0.15s",
               }}
             >
-              {step === "uploading" && (
+              {isLoading && (
                 <Loader2
                   size={13}
                   style={{ animation: "spin 1s linear infinite" }}
                 />
               )}
-              {step === "uploading"
-                ? "Importing…"
-                : `Import${validCount > 0 ? ` (${validCount})` : ""}`}
+              {isLoading ? "Uploading…" : "Import Excel"}
             </button>
           )}
         </div>

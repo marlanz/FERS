@@ -26,6 +26,7 @@ interface EquipmentToolbarProps {
   onAddEquipment: () => void;
   onRefresh?: () => void;
   onImportJson?: () => void;
+  onImportExcel?: () => void;
 }
 
 export default function EquipmentToolbar({
@@ -41,6 +42,7 @@ export default function EquipmentToolbar({
   onAddEquipment,
   onRefresh,
   onImportJson,
+  onImportExcel,
 }: EquipmentToolbarProps) {
   const [importMenuOpen, setImportMenuOpen] = useState(false);
   const importMenuRef = useRef<HTMLDivElement>(null);
@@ -286,7 +288,10 @@ export default function EquipmentToolbar({
         </button>
 
         {/* Import dropdown */}
-        <div ref={importMenuRef} style={{ position: "relative", flexShrink: 0 }}>
+        <div
+          ref={importMenuRef}
+          style={{ position: "relative", flexShrink: 0 }}
+        >
           <button
             id="toolbar-import-btn"
             className="btn-ghost"
@@ -370,20 +375,35 @@ export default function EquipmentToolbar({
                 </span>
                 <div>
                   <div>Import JSON</div>
-                  <div style={{ fontSize: "11px", color: "var(--color-text-muted)", fontWeight: 400 }}>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: "var(--color-text-muted)",
+                      fontWeight: 400,
+                    }}
+                  >
                     .json array of records
                   </div>
                 </div>
               </button>
 
               {/* Divider */}
-              <div style={{ height: "1px", background: "var(--color-border)", margin: "0 10px" }} />
+              <div
+                style={{
+                  height: "1px",
+                  background: "var(--color-border)",
+                  margin: "0 10px",
+                }}
+              />
 
-              {/* Import Excel — placeholder */}
+              {/* Import Excel */}
               <button
                 id="toolbar-import-excel-btn"
                 role="menuitem"
-                disabled
+                onClick={() => {
+                  setImportMenuOpen(false);
+                  onImportExcel?.();
+                }}
                 style={{
                   width: "100%",
                   display: "flex",
@@ -392,13 +412,19 @@ export default function EquipmentToolbar({
                   padding: "10px 14px",
                   background: "none",
                   border: "none",
-                  cursor: "not-allowed",
+                  cursor: "pointer",
                   fontSize: "13px",
-                  color: "var(--color-text-muted)",
+                  color: "var(--color-text-primary)",
                   fontWeight: 500,
                   textAlign: "left",
-                  opacity: 0.55,
+                  transition: "background 0.1s",
                 }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = "var(--color-surface-2)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "none")
+                }
               >
                 <span
                   style={{
@@ -416,7 +442,15 @@ export default function EquipmentToolbar({
                 </span>
                 <div>
                   <div>Import Excel</div>
-                  <div style={{ fontSize: "11px", fontWeight: 400 }}>Coming soon</div>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: "var(--color-text-muted)",
+                      fontWeight: 400,
+                    }}
+                  >
+                    .xlsx, .xls file
+                  </div>
                 </div>
               </button>
             </div>
