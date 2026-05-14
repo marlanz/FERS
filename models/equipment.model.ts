@@ -47,8 +47,8 @@ const EquipmentSchema = new Schema(
 
     equipmentCode: {
       type: String,
-      required: true,
-      unique: true,
+      // required: true,
+      // unique: true,
       trim: true,
     },
 

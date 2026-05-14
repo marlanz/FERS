@@ -278,8 +278,8 @@ export default function EquipmentDataTable({
     </div>
   );
 
-  const pageNums = (() => {
-    const nums: number[] = [];
+  const pageNums = useMemo(() => {
+    const set = new Set<number>();
     const delta = 2;
     for (let i = 1; i <= totalPages; i++) {
       if (
@@ -287,10 +287,10 @@ export default function EquipmentDataTable({
         i === totalPages ||
         (i >= page - delta && i <= page + delta)
       )
-        nums.push(i);
+        set.add(i);
     }
-    return nums;
-  })();
+    return Array.from(set).sort((a, b) => a - b);
+  }, [page, totalPages]);
 
   return (
     <div
@@ -432,7 +432,7 @@ export default function EquipmentDataTable({
 
                 return (
                   <tr
-                    key={row.equipmentCode}
+                    key={row._id}
                     onClick={() => onRowClick(row)}
                     onMouseEnter={() => setHoveredRow(row.equipmentCode)}
                     onMouseLeave={() => setHoveredRow(null)}

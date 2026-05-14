@@ -81,19 +81,19 @@ export async function POST(req: Request) {
     }));
 
     // Remove empty rows
-    const filteredEquipments = equipments.filter(
-      (item) => item.equipmentName && item.equipmentCode,
-    );
+    // const filteredEquipments = equipments.filter(
+    //   (item) => item.equipmentName && item.equipmentCode,
+    // );
 
     // Save MongoDB
-    const result = await EquipmentModel.insertMany(filteredEquipments, {
+    const result = await EquipmentModel.insertMany(equipments, {
       ordered: false,
     });
 
     return NextResponse.json({
       success: true,
       inserted: result.length,
-      total: filteredEquipments.length,
+      total: equipments.length,
     });
   } catch (error: any) {
     console.error("[UPLOAD_ERROR]", error);

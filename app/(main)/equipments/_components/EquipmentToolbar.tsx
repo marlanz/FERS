@@ -38,7 +38,6 @@ export default function EquipmentToolbar({
   density,
   onDensityChange,
   selectedCount,
-  totalCount,
   onAddEquipment,
   onRefresh,
   onImportJson,
