@@ -15,9 +15,9 @@ interface TopHeaderProps {
 }
 
 const PAGE_TITLES: Record<string, string> = {
-  "/dashboard": "Dashboard",
-  "/equipments": "Equipment Registry",
-  "/factories": "Factory Management",
+  "/dashboard": "Thống kê thiết bị",
+  "/equipments": "Danh sách thiết bị",
+  "/factories": "Quản lý nhà máy",
   "/workcenters": "Work Centers",
   "/maintenance": "Maintenance Schedule",
   "/reports": "Reports & Analytics",

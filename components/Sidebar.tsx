@@ -18,9 +18,9 @@ import {
 import { useSidebarStore } from "@/lib/store/useSidebarStore";
 
 const navItems = [
-  { href: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "equipments", label: "Equipment", icon: Cpu },
-  { href: "factories", label: "Factories", icon: Factory },
+  { href: "dashboard", label: "Thống kê", icon: LayoutDashboard },
+  { href: "equipments", label: "Danh sách thiết bị", icon: Cpu },
+  { href: "factories", label: "Nhà máy", icon: Factory },
   { href: "workcenters", label: "Work Centers", icon: GitBranch },
   { href: "maintenance", label: "Maintenance", icon: Wrench },
   { href: "reports", label: "Reports", icon: BarChart3 },

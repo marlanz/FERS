@@ -12,6 +12,7 @@ export async function POST(req: Request) {
     const formData = await req.formData();
 
     const file = formData.get("file") as File;
+    const sheetIndex = Number(formData.get("sheetIndex") || 0);
 
     if (!file) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
       type: "array",
     });
 
-    const sheetName = workbook.SheetNames[0];
+    const sheetName = workbook.SheetNames[sheetIndex];
 
     const sheet = workbook.Sheets[sheetName];
 
