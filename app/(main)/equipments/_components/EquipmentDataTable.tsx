@@ -115,6 +115,108 @@ function getVal(r: Equipment, k: SortKey): string | number {
 
 const PAGE_SIZES = [10, 20, 50, 100];
 
+function CustomTblRow({
+  col,
+  label,
+  width,
+  sortKey,
+  sortDir,
+  handleSort,
+}: {
+  col: SortKey;
+  label: string;
+  width?: number;
+  sortKey: SortKey;
+  sortDir: SortDir;
+  handleSort: (key: SortKey) => void;
+}) {
+  return (
+    <th
+      style={{
+        width,
+        padding: "9px 12px",
+        background: "var(--color-surface-2)",
+        borderBottom: "2px solid var(--color-border)",
+        textAlign: "left",
+        position: "sticky",
+        top: 0,
+        zIndex: 5,
+        whiteSpace: "nowrap",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "2px",
+          fontSize: "11px",
+          fontWeight: 700,
+          color: "var(--color-text-secondary)",
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+        }}
+      >
+        {label}
+        <SortBtn
+          col={col}
+          sortKey={sortKey}
+          sortDir={sortDir}
+          onClick={() => handleSort(col)}
+        />
+      </div>
+    </th>
+  );
+}
+
+function CustomCheckbox({
+  checked,
+  indeterminate,
+  onClick,
+}: {
+  checked: boolean;
+  indeterminate?: boolean;
+  onClick: (e: React.MouseEvent) => void;
+}) {
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        width: "14px",
+        height: "14px",
+        border: `2px solid ${checked || indeterminate ? "rgb(233,34,39)" : "var(--color-border)"}`,
+        borderRadius: "3px",
+        background: checked ? "rgb(233,34,39)" : "transparent",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        flexShrink: 0,
+        margin: "0 auto",
+        transition: "all 0.12s",
+      }}
+    >
+      {checked && (
+        <ChevronUp
+          size={9}
+          color="white"
+          strokeWidth={3}
+          style={{ transform: "rotate(45deg) translateX(1px) translateY(1px)" }}
+        />
+      )}
+      {!checked && indeterminate && (
+        <div
+          style={{
+            width: "6px",
+            height: "2px",
+            background: "rgb(233,34,39)",
+            borderRadius: "1px",
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
 interface Props {
   data: Equipment[];
   density: "compact" | "normal" | "comfortable";
@@ -186,98 +288,6 @@ export default function EquipmentDataTable({
     onSelectionChange(next);
   };
 
-  const Th = ({
-    col,
-    label,
-    width,
-  }: {
-    col: SortKey;
-    label: string;
-    width?: number;
-  }) => (
-    <th
-      style={{
-        width,
-        padding: "9px 12px",
-        background: "var(--color-surface-2)",
-        borderBottom: "2px solid var(--color-border)",
-        textAlign: "left",
-        position: "sticky",
-        top: 0,
-        zIndex: 5,
-        whiteSpace: "nowrap",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "2px",
-          fontSize: "11px",
-          fontWeight: 700,
-          color: "var(--color-text-secondary)",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-        }}
-      >
-        {label}
-        <SortBtn
-          col={col}
-          sortKey={sortKey}
-          sortDir={sortDir}
-          onClick={() => handleSort(col)}
-        />
-      </div>
-    </th>
-  );
-
-  const Checkbox = ({
-    checked,
-    indeterminate,
-    onClick,
-  }: {
-    checked: boolean;
-    indeterminate?: boolean;
-    onClick: (e: React.MouseEvent) => void;
-  }) => (
-    <div
-      onClick={onClick}
-      style={{
-        width: "14px",
-        height: "14px",
-        border: `2px solid ${checked || indeterminate ? "rgb(233,34,39)" : "var(--color-border)"}`,
-        borderRadius: "3px",
-        background: checked ? "rgb(233,34,39)" : "transparent",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        cursor: "pointer",
-        flexShrink: 0,
-        margin: "0 auto",
-        transition: "all 0.12s",
-      }}
-    >
-      {checked && (
-        <ChevronUp
-          size={9}
-          color="white"
-          strokeWidth={3}
-          style={{ transform: "rotate(45deg) translateX(1px) translateY(1px)" }}
-        />
-      )}
-      {!checked && indeterminate && (
-        <div
-          style={{
-            width: "6px",
-            height: "2px",
-            background: "rgb(233,34,39)",
-            borderRadius: "1px",
-          }}
-        />
-      )}
-    </div>
-  );
-
   const pageNums = useMemo(() => {
     const set = new Set<number>();
     const delta = 2;
@@ -326,7 +336,7 @@ export default function EquipmentDataTable({
                   textAlign: "center",
                 }}
               >
-                <Checkbox
+                <CustomCheckbox
                   checked={allPageSelected}
                   indeterminate={
                     !allPageSelected &&
@@ -355,16 +365,86 @@ export default function EquipmentDataTable({
               >
                 #
               </th>
-              <Th col="equipmentCode" label="Code" width={120} />
-              <Th col="equipmentName" label="Equipment Name" width={200} />
-              <Th col="factory" label="Factory" width={110} />
-              <Th col="workshop" label="Workshop" width={90} />
-              <Th col="group2" label="Equipment Group" width={160} />
-              <Th col="brand" label="Brand" width={120} />
-              <Th col="model" label="Model" width={100} />
-              <Th col="produceYear" label="Year" width={70} />
-              <Th col="status" label="Status" width={120} />
-              <Th col="installationLocation" label="Location" width={90} />
+              <CustomTblRow
+                col="equipmentCode"
+                label="Code"
+                width={120}
+                handleSort={handleSort}
+                sortDir={sortDir}
+                sortKey={sortKey}
+              />
+              <CustomTblRow
+                col="equipmentName"
+                label="Equipment Name"
+                width={200}
+                handleSort={handleSort}
+                sortDir={sortDir}
+                sortKey={sortKey}
+              />
+              <CustomTblRow
+                col="factory"
+                label="Factory"
+                width={110}
+                handleSort={handleSort}
+                sortDir={sortDir}
+                sortKey={sortKey}
+              />
+              <CustomTblRow
+                col="workshop"
+                label="Workshop"
+                width={90}
+                handleSort={handleSort}
+                sortDir={sortDir}
+                sortKey={sortKey}
+              />
+              <CustomTblRow
+                col="group2"
+                label="Equipment Group"
+                width={160}
+                handleSort={handleSort}
+                sortDir={sortDir}
+                sortKey={sortKey}
+              />
+              <CustomTblRow
+                col="brand"
+                label="Brand"
+                width={120}
+                handleSort={handleSort}
+                sortDir={sortDir}
+                sortKey={sortKey}
+              />
+              <CustomTblRow
+                col="model"
+                label="Model"
+                width={100}
+                handleSort={handleSort}
+                sortDir={sortDir}
+                sortKey={sortKey}
+              />
+              <CustomTblRow
+                col="produceYear"
+                label="Year"
+                width={70}
+                handleSort={handleSort}
+                sortDir={sortDir}
+                sortKey={sortKey}
+              />
+              <CustomTblRow
+                col="status"
+                label="Status"
+                width={120}
+                handleSort={handleSort}
+                sortDir={sortDir}
+                sortKey={sortKey}
+              />
+              <CustomTblRow
+                col="installationLocation"
+                label="Location"
+                width={90}
+                handleSort={handleSort}
+                sortDir={sortDir}
+                sortKey={sortKey}
+              />
               <th
                 style={{
                   width: 90,
@@ -457,7 +537,7 @@ export default function EquipmentDataTable({
                       }}
                       onClick={(e) => toggleRow(row.equipmentCode, e)}
                     >
-                      <Checkbox
+                      <CustomCheckbox
                         checked={selected}
                         onClick={(e) => toggleRow(row.equipmentCode, e)}
                       />

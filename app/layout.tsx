@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Geist } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "@/lib/QueryProvider";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const inter = Inter({
   variable: "--font-inter",
@@ -23,7 +26,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
-      className={`${inter.variable} h-full`}
+      className={cn("h-full", inter.variable, "font-sans", geist.variable)}
       suppressHydrationWarning
     >
       <body className="h-full antialiased">
