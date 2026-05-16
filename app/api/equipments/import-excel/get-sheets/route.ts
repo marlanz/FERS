@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       // success: true,
       // inserted: result.length,
       // total: equipments.length,
-      totalSheets: sheets,
+      sheets,
     });
   } catch (err) {
     console.error("[UPLOAD_ERROR]", err);

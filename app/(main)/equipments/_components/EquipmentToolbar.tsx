@@ -40,7 +40,6 @@ export default function EquipmentToolbar({
   selectedCount,
   onAddEquipment,
   onRefresh,
-  onImportJson,
   onImportExcel,
 }: EquipmentToolbarProps) {
   const [importMenuOpen, setImportMenuOpen] = useState(false);

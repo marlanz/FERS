@@ -11,6 +11,27 @@ import {
   Loader2,
 } from "lucide-react";
 
+import { useMutation } from "@tanstack/react-query";
+
+// Mutation to get sheet names from uploaded Excel file
+function useGetSheetsMutation() {
+  return useMutation({
+    mutationFn: async (file: File): Promise<string[]> => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/equipments/import-excel/get-sheets", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to get sheets: ${res.statusText}`);
+      }
+      const data = await res.json();
+      return data.sheets;
+    },
+  });
+}
+
 // ─── Toast ────────────────────────────────────────────────────────────────────
 
 interface ToastState {
@@ -194,9 +215,14 @@ export default function ImportExcelModal({
   const [fatalError, setFatalError] = useState("");
   const [result, setResult] = useState<UploadResult | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [selectedSheets, setSelectedSheets] = useState<string>("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<File | null>(null);
+
+  // Remove useSheets, use mutation instead
+  const [allSheets, setAllSheets] = useState<string[]>([]);
+  const getSheetsMutation = useGetSheetsMutation();
 
   const closeModal = () => {
     onClose();
@@ -205,6 +231,8 @@ export default function ImportExcelModal({
     setFileName("");
     setFatalError("");
     setResult(null);
+    setAllSheets([]);
+    setSelectedSheets("");
     fileRef.current = null;
   };
 
@@ -222,17 +250,31 @@ export default function ImportExcelModal({
 
   // ── File handling ──────────────────────────────────────────────────────────
 
-  const processFile = useCallback((file: File) => {
-    const name = file.name.toLowerCase();
-    if (!name.endsWith(".xlsx") && !name.endsWith(".xls")) {
-      setFatalError("Please select a valid Excel file (.xlsx or .xls).");
-      return;
-    }
-    setFatalError("");
-    setFileName(file.name);
-    fileRef.current = file;
-    setStep("ready");
-  }, []);
+  const processFile = useCallback(
+    async (file: File) => {
+      const name = file.name.toLowerCase();
+      if (!name.endsWith(".xlsx") && !name.endsWith(".xls")) {
+        setFatalError("Please select a valid Excel file (.xlsx or .xls).");
+        return;
+      }
+      setFatalError("");
+      setFileName(file.name);
+      fileRef.current = file;
+      // Get sheet names from file
+      try {
+        setAllSheets([]);
+        const sheets = await getSheetsMutation.mutateAsync(file);
+        setAllSheets(sheets);
+      } catch (err) {
+        setFatalError(
+          err instanceof Error ? err.message : "Failed to get sheets",
+        );
+        setAllSheets([]);
+      }
+      setStep("ready");
+    },
+    [getSheetsMutation],
+  );
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -315,7 +357,6 @@ export default function ImportExcelModal({
     <>
       {/* Backdrop */}
       <div
-        onClick={() => closeModal()}
         style={{
           position: "fixed",
           inset: 0,
@@ -507,6 +548,32 @@ export default function ImportExcelModal({
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Sheet selection UI */}
+          {allSheets.length > 0 && (
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                Select sheet:
+              </div>
+              <select
+                value={selectedSheets}
+                onChange={(e) => setSelectedSheets(e.target.value)}
+                style={{
+                  padding: "6px 10px",
+                  borderRadius: 6,
+                  border: "1px solid var(--color-border)",
+                  fontSize: 13,
+                }}
+              >
+                <option value="">-- Choose a sheet --</option>
+                {allSheets.map((s, idx) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
