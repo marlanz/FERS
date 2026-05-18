@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "../globals.css";
 import AppShell from "@/components/AppShell";
 import AuthProvider from "@/components/AuthProvider";
+import { AppToaster } from "@/components/providers/app-toaster";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -30,6 +31,7 @@ export default function RootLayout({
       <body className="h-full antialiased">
         <AuthProvider>
           <AppShell>{children}</AppShell>
+          <AppToaster />
         </AuthProvider>
       </body>
     </html>

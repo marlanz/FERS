@@ -13,7 +13,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: "rgb(233, 34, 39)",
+        ddbrand: "rgb(233, 34, 39)",
       },
     },
   },

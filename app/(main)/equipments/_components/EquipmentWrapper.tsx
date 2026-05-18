@@ -22,7 +22,7 @@ import EquipmentDataTable from "@/app/(main)/equipments/_components/EquipmentDat
 import EquipmentDetailPanel from "@/app/(main)/equipments/_components/EquipmentDetailPanel";
 import ImportJsonModal from "@/app/(main)/equipments/_components/ImportJsonModal";
 import ImportExcelModal from "./ImportExcelModal";
-import AddEquipmentModal from "@/app/(main)/equipments/_components/AddEquipmentModal";
+import EquipmentModal from "@/app/(main)/equipments/_components/EquipmentModal";
 
 function uniq<T>(arr: T[]): T[] {
   return [...new Set(arr)].sort((a, b) => String(a).localeCompare(String(b)));
@@ -512,13 +512,10 @@ export function EquipmentPageInner() {
         }}
       />
 
-      <AddEquipmentModal
+      <EquipmentModal
         open={addEquipmentOpen}
-        onClose={() => setAddEquipmentOpen(false)}
-        onSuccess={() => {
-          refetch();
-          setAddEquipmentOpen(false);
-        }}
+        onOpenChange={setAddEquipmentOpen}
+        onSuccess={() => refetch()}
       />
     </div>
   );
