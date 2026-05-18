@@ -22,6 +22,7 @@ import EquipmentDataTable from "@/app/(main)/equipments/_components/EquipmentDat
 import EquipmentDetailPanel from "@/app/(main)/equipments/_components/EquipmentDetailPanel";
 import ImportJsonModal from "@/app/(main)/equipments/_components/ImportJsonModal";
 import ImportExcelModal from "./ImportExcelModal";
+import AddEquipmentModal from "@/app/(main)/equipments/_components/AddEquipmentModal";
 
 function uniq<T>(arr: T[]): T[] {
   return [...new Set(arr)].sort((a, b) => String(a).localeCompare(String(b)));
@@ -146,6 +147,7 @@ export function EquipmentPageInner() {
 
   const [importJsonOpen, setImportJsonOpen] = useState(false);
   const [importExcelOpen, setImportExcelOpen] = useState(false);
+  const [addEquipmentOpen, setAddEquipmentOpen] = useState(false);
 
   // ── debounced search ──
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -246,7 +248,7 @@ export function EquipmentPageInner() {
         onDensityChange={setDensity}
         selectedCount={selectedCodes.size}
         totalCount={allEquipment.length}
-        onAddEquipment={() => {}}
+        onAddEquipment={() => setAddEquipmentOpen(true)}
         onRefresh={() => refetch()}
         onImportJson={() => setImportJsonOpen(true)}
         onImportExcel={() => setImportExcelOpen(true)}
@@ -507,6 +509,15 @@ export function EquipmentPageInner() {
         onSuccess={() => {
           refetch();
           setImportExcelOpen(false);
+        }}
+      />
+
+      <AddEquipmentModal
+        open={addEquipmentOpen}
+        onClose={() => setAddEquipmentOpen(false)}
+        onSuccess={() => {
+          refetch();
+          setAddEquipmentOpen(false);
         }}
       />
     </div>

@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Upload,
   FileSpreadsheet,
   CheckCircle2,
   XCircle,
@@ -11,26 +10,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-import { useMutation } from "@tanstack/react-query";
-
-// Mutation to get sheet names from uploaded Excel file
-function useGetSheetsMutation() {
-  return useMutation({
-    mutationFn: async (file: File): Promise<string[]> => {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/equipments/import-excel/get-sheets", {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) {
-        throw new Error(`Failed to get sheets: ${res.statusText}`);
-      }
-      const data = await res.json();
-      return data.sheets;
-    },
-  });
-}
+import { useGetSheetsMutation } from "@/lib/hooks/useSheets";
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 
@@ -198,6 +178,11 @@ function DoneSummary({ result }: { result: UploadResult }) {
 
 type ModalStep = "idle" | "ready" | "uploading" | "done";
 
+type SheetInfo = {
+  index: number;
+  sheetName: string;
+};
+
 interface ImportExcelModalProps {
   open: boolean;
   onClose: () => void;
@@ -215,13 +200,15 @@ export default function ImportExcelModal({
   const [fatalError, setFatalError] = useState("");
   const [result, setResult] = useState<UploadResult | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
-  const [selectedSheets, setSelectedSheets] = useState<string>("");
+  const [selectedSheetIndex, setSelectedSheetIndex] = useState<number | null>(
+    null,
+  );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<File | null>(null);
 
   // Remove useSheets, use mutation instead
-  const [allSheets, setAllSheets] = useState<string[]>([]);
+  const [allSheets, setAllSheets] = useState<SheetInfo[]>([]);
   const getSheetsMutation = useGetSheetsMutation();
 
   const closeModal = () => {
@@ -232,7 +219,7 @@ export default function ImportExcelModal({
     setFatalError("");
     setResult(null);
     setAllSheets([]);
-    setSelectedSheets("");
+    setSelectedSheetIndex(null);
     fileRef.current = null;
   };
 
@@ -264,7 +251,11 @@ export default function ImportExcelModal({
       try {
         setAllSheets([]);
         const sheets = await getSheetsMutation.mutateAsync(file);
-        setAllSheets(sheets);
+        const formattedSheets = sheets.map((sheet, index) => ({
+          index,
+          sheetName: sheet,
+        }));
+        setAllSheets(formattedSheets);
       } catch (err) {
         setFatalError(
           err instanceof Error ? err.message : "Failed to get sheets",
@@ -299,11 +290,16 @@ export default function ImportExcelModal({
 
   const handleImport = useCallback(async () => {
     if (!fileRef.current) return;
+    if (selectedSheetIndex === null) {
+      setFatalError("Please select a sheet.");
+      return;
+    }
     setStep("uploading");
     setFatalError("");
     try {
       const formData = new FormData();
       formData.append("file", fileRef.current);
+      formData.append("sheetIndex", String(selectedSheetIndex));
 
       const res = await fetch("/api/equipments/import-excel", {
         method: "POST",
@@ -342,7 +338,7 @@ export default function ImportExcelModal({
       });
       setStep("ready");
     }
-  }, [onSuccess, showToast]);
+  }, [onSuccess, showToast, selectedSheetIndex]);
 
   if (!open)
     return toast ? (
@@ -352,6 +348,8 @@ export default function ImportExcelModal({
   const isLoading = step === "uploading";
   const canSubmit = step === "ready";
   const isDone = step === "done";
+
+  // console.log(selectedSheets);
 
   return (
     <>
@@ -558,8 +556,8 @@ export default function ImportExcelModal({
                 Select sheet:
               </div>
               <select
-                value={selectedSheets}
-                onChange={(e) => setSelectedSheets(e.target.value)}
+                value={selectedSheetIndex ?? ""}
+                onChange={(e) => setSelectedSheetIndex(Number(e.target.value))}
                 style={{
                   padding: "6px 10px",
                   borderRadius: 6,
@@ -568,9 +566,9 @@ export default function ImportExcelModal({
                 }}
               >
                 <option value="">-- Choose a sheet --</option>
-                {allSheets.map((s, idx) => (
-                  <option key={s} value={s}>
-                    {s}
+                {allSheets.map((sheet) => (
+                  <option key={sheet.index} value={sheet.index}>
+                    {sheet.sheetName}
                   </option>
                 ))}
               </select>

@@ -95,6 +95,7 @@ export async function POST(req: Request) {
       success: true,
       inserted: result.length,
       total: equipments.length,
+      // sheetName: sheet,
     });
   } catch (error: any) {
     console.error("[UPLOAD_ERROR]", error);

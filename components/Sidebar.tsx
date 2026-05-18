@@ -21,11 +21,6 @@ const navItems = [
   { href: "dashboard", label: "Thống kê", icon: LayoutDashboard },
   { href: "equipments", label: "Danh sách thiết bị", icon: Cpu },
   { href: "factories", label: "Nhà máy", icon: Factory },
-  { href: "workcenters", label: "Work Centers", icon: GitBranch },
-  { href: "maintenance", label: "Maintenance", icon: Wrench },
-  { href: "reports", label: "Reports", icon: BarChart3 },
-  { href: "import", label: "Import Excel", icon: FileSpreadsheet },
-  { href: "settings", label: "Settings", icon: Settings },
 ];
 
 export default function Sidebar() {
