@@ -90,10 +90,15 @@ export const EquipmentCreateSchema = EquipmentFormSchema.transform((data) => ({
 export type EquipmentCreateInput = z.input<typeof EquipmentCreateSchema>;
 export type EquipmentCreatePayload = z.output<typeof EquipmentCreateSchema>;
 
-/** Bulk delete — selection is keyed by equipmentCode in the table UI. */
+/** Bulk delete — selection uses MongoDB `_id` (unique per row; duplicate codes allowed). */
 export const DeleteEquipmentSchema = z.object({
-  equipmentCodes: z
-    .array(z.string().trim().min(1))
+  ids: z
+    .array(
+      z
+        .string()
+        .trim()
+        .regex(/^[a-f\d]{24}$/i, "Invalid document id"),
+    )
     .min(1, "Select at least one equipment to delete"),
 });
 

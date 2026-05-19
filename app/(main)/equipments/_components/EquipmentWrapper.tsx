@@ -30,6 +30,7 @@ import ImportExcelModal from "./ImportExcelModal";
 import EquipmentModal from "@/app/(main)/equipments/_components/EquipmentModal";
 import EquipmentKpiSkeleton from "@/app/(main)/equipments/_components/EquipmentKpiSkeleton";
 import EquipmentTableSkeleton from "@/app/(main)/equipments/_components/EquipmentTableSkeleton";
+import { getEquipmentDocumentId } from "@/lib/equipment/equipmentRowId";
 
 function uniq<T>(arr: T[]): T[] {
   return [...new Set(arr)].sort((a, b) => String(a).localeCompare(String(b)));
@@ -142,7 +143,7 @@ export function EquipmentPageInner() {
   const [filterOpen, setFilterOpen] = useState(
     () => countActiveFilters(paramsToFilters(searchParams)) > 0,
   );
-  const [selectedCodes, setSelectedCodes] = useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [detailEquipment, setDetailEquipment] = useState<Equipment | null>(
     null,
   );
@@ -225,11 +226,11 @@ export function EquipmentPageInner() {
   const handleCloseDetail = useCallback(() => setDetailEquipment(null), []);
 
   const handleDeleteSelected = useCallback(async () => {
-    if (selectedCodes.size === 0) return;
+    if (selectedIds.size === 0) return;
 
-    const codes = Array.from(selectedCodes);
+    const ids = Array.from(selectedIds);
     const confirmed = window.confirm(
-      `Delete ${codes.length} equipment record${codes.length > 1 ? "s" : ""}? This cannot be undone.`,
+      `Delete ${ids.length} equipment record${ids.length > 1 ? "s" : ""}? This cannot be undone.`,
     );
     if (!confirmed) return;
 
@@ -238,7 +239,7 @@ export function EquipmentPageInner() {
       const res = await fetch("/api/equipments", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ equipmentCodes: codes }),
+        body: JSON.stringify({ ids }),
       });
 
       const json = (await res.json()) as
@@ -261,11 +262,11 @@ export function EquipmentPageInner() {
         );
       }
 
-      setSelectedCodes(new Set());
-      if (
-        detailEquipment &&
-        codes.includes(detailEquipment.equipmentCode)
-      ) {
+      setSelectedIds(new Set());
+      const detailId = detailEquipment
+        ? getEquipmentDocumentId(detailEquipment)
+        : null;
+      if (detailId && ids.includes(detailId)) {
         setDetailEquipment(null);
       }
       refetch();
@@ -274,7 +275,7 @@ export function EquipmentPageInner() {
     } finally {
       setIsDeleting(false);
     }
-  }, [selectedCodes, detailEquipment, refetch]);
+  }, [selectedIds, detailEquipment, refetch]);
 
   // ── remove one filter chip ──
   const removeFilterValue = useCallback(
@@ -306,7 +307,7 @@ export function EquipmentPageInner() {
         activeFiltersCount={afCount}
         density={density}
         onDensityChange={setDensity}
-        selectedCount={selectedCodes.size}
+        selectedCount={selectedIds.size}
         totalCount={allEquipment.length}
         onAddEquipment={() => setAddEquipmentOpen(true)}
         onRefresh={() => refetch()}
@@ -524,7 +525,7 @@ export function EquipmentPageInner() {
               </span>
             )}
 
-            {!isLoading && selectedCodes.size > 0 && (
+            {!isLoading && selectedIds.size > 0 && (
               <>
                 <div style={{ flex: 1 }} />
                 <span
@@ -538,7 +539,7 @@ export function EquipmentPageInner() {
                     padding: "1px 8px",
                   }}
                 >
-                  {selectedCodes.size} selected
+                  {selectedIds.size} selected
                 </span>
               </>
             )}
@@ -551,8 +552,8 @@ export function EquipmentPageInner() {
               data={filteredData}
               density={density}
               onRowClick={handleRowClick}
-              selectedCodes={selectedCodes}
-              onSelectionChange={setSelectedCodes}
+              selectedIds={selectedIds}
+              onSelectionChange={setSelectedIds}
             />
           )}
         </div>

@@ -12,6 +12,7 @@ import {
   Trash2,
 } from "lucide-react";
 import type { Equipment, EquipmentStatus } from "@/types/equipment";
+import { getEquipmentDocumentId } from "@/lib/equipment/equipmentRowId";
 
 const STATUS_CFG: Record<
   EquipmentStatus,
@@ -171,15 +172,17 @@ function CustomTblRow({
 function CustomCheckbox({
   checked,
   indeterminate,
+  disabled,
   onClick,
 }: {
   checked: boolean;
   indeterminate?: boolean;
+  disabled?: boolean;
   onClick: (e: React.MouseEvent) => void;
 }) {
   return (
     <div
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
       style={{
         width: "14px",
         height: "14px",
@@ -189,10 +192,11 @@ function CustomCheckbox({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        cursor: "pointer",
+        cursor: disabled ? "not-allowed" : "pointer",
         flexShrink: 0,
         margin: "0 auto",
         transition: "all 0.12s",
+        opacity: disabled ? 0.35 : 1,
       }}
     >
       {checked && (
@@ -221,15 +225,16 @@ interface Props {
   data: Equipment[];
   density: "compact" | "normal" | "comfortable";
   onRowClick: (r: Equipment) => void;
-  selectedCodes: Set<string>;
-  onSelectionChange: (codes: Set<string>) => void;
+  /** MongoDB document ids (`_id`), not equipment codes. */
+  selectedIds: Set<string>;
+  onSelectionChange: (ids: Set<string>) => void;
 }
 
 export default function EquipmentDataTable({
   data,
   density,
   onRowClick,
-  selectedCodes,
+  selectedIds,
   onSelectionChange,
 }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>("no");
@@ -272,19 +277,32 @@ export default function EquipmentDataTable({
 
   const allPageSelected =
     pageData.length > 0 &&
-    pageData.every((r) => selectedCodes.has(r.equipmentCode));
+    pageData.every((r) => {
+      const id = getEquipmentDocumentId(r);
+      return id != null && selectedIds.has(id);
+    });
 
   const toggleAll = () => {
-    const next = new Set(selectedCodes);
-    if (allPageSelected) pageData.forEach((r) => next.delete(r.equipmentCode));
-    else pageData.forEach((r) => next.add(r.equipmentCode));
+    const next = new Set(selectedIds);
+    if (allPageSelected) {
+      pageData.forEach((r) => {
+        const id = getEquipmentDocumentId(r);
+        if (id) next.delete(id);
+      });
+    } else {
+      pageData.forEach((r) => {
+        const id = getEquipmentDocumentId(r);
+        if (id) next.add(id);
+      });
+    }
     onSelectionChange(next);
   };
 
-  const toggleRow = (code: string, e: React.MouseEvent) => {
+  const toggleRow = (id: string | null, e: React.MouseEvent) => {
     e.stopPropagation();
-    const next = new Set(selectedCodes);
-    next.has(code) ? next.delete(code) : next.add(code);
+    if (!id) return;
+    const next = new Set(selectedIds);
+    next.has(id) ? next.delete(id) : next.add(id);
     onSelectionChange(next);
   };
 
@@ -340,7 +358,10 @@ export default function EquipmentDataTable({
                   checked={allPageSelected}
                   indeterminate={
                     !allPageSelected &&
-                    pageData.some((r) => selectedCodes.has(r.equipmentCode))
+                    pageData.some((r) => {
+                      const id = getEquipmentDocumentId(r);
+                      return id != null && selectedIds.has(id);
+                    })
                   }
                   onClick={(e) => {
                     e.stopPropagation();
@@ -503,8 +524,9 @@ export default function EquipmentDataTable({
               </tr>
             ) : (
               pageData.map((row, idx) => {
-                const selected = selectedCodes.has(row.equipmentCode);
-                const hovered = hoveredRow === row.equipmentCode;
+                const rowId = getEquipmentDocumentId(row);
+                const selected = rowId != null && selectedIds.has(rowId);
+                const hovered = rowId != null && hoveredRow === rowId;
                 const status = row.status ?? "active";
                 const sCfg = STATUS_CFG[status];
                 // Calculate display index for current row (1-based, continues across pages)
@@ -512,9 +534,9 @@ export default function EquipmentDataTable({
 
                 return (
                   <tr
-                    key={row._id}
+                    key={rowId ?? `row-${displayIndex}`}
                     onClick={() => onRowClick(row)}
-                    onMouseEnter={() => setHoveredRow(row.equipmentCode)}
+                    onMouseEnter={() => setHoveredRow(rowId)}
                     onMouseLeave={() => setHoveredRow(null)}
                     style={{
                       cursor: "pointer",
@@ -535,11 +557,12 @@ export default function EquipmentDataTable({
                         borderBottom: "1px solid var(--color-border)",
                         textAlign: "center",
                       }}
-                      onClick={(e) => toggleRow(row.equipmentCode, e)}
+                      onClick={(e) => toggleRow(rowId, e)}
                     >
                       <CustomCheckbox
                         checked={selected}
-                        onClick={(e) => toggleRow(row.equipmentCode, e)}
+                        disabled={!rowId}
+                        onClick={(e) => toggleRow(rowId, e)}
                       />
                     </td>
                     <td

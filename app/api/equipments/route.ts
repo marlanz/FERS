@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// DELETE /api/equipments — bulk delete by equipment codes
+// DELETE /api/equipments — bulk delete by MongoDB `_id`
 export async function DELETE(req: NextRequest) {
   try {
     let body: unknown;
