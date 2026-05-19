@@ -20,7 +20,7 @@ import { useSidebarStore } from "@/lib/store/useSidebarStore";
 const navItems = [
   { href: "dashboard", label: "Thống kê", icon: LayoutDashboard },
   { href: "equipments", label: "Danh sách thiết bị", icon: Cpu },
-  { href: "factories", label: "Nhà máy", icon: Factory },
+  // { href: "factories", label: "Nhà máy", icon: Factory },
 ];
 
 export default function Sidebar() {

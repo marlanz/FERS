@@ -50,7 +50,7 @@ export async function createEquipment(
       return {
         ok: false,
         status: 409,
-        error: `Equipment code "${code}" already exists.`,
+        error: `Mã thiết bị này: "${code}" đã tồn tại`,
       };
     }
 

@@ -1,6 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+// Utility to debounce a function
+
 import {
   useForm,
   useFormState,
@@ -55,7 +63,7 @@ function FormSection({
   children: ReactNode;
 }) {
   return (
-    <fieldset className="">
+    <fieldset className="space-y-4">
       <legend className="text-xs font-semibold tracking-wide text-primary uppercase">
         {title}
       </legend>
@@ -146,8 +154,19 @@ export default function EquipmentModal({
       >
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <Cpu className="size-4" aria-hidden />
+            <div
+              className="flex size-9 shrink-0 items-center justify-center rounded-lg  text-primary"
+              style={{
+                backgroundColor: "rgba(233, 34, 39, 0.1)",
+              }}
+            >
+              <Cpu
+                className="size-4"
+                aria-hidden
+                style={{
+                  color: "rgb(233, 34, 39)",
+                }}
+              />
             </div>
             <div>
               <DialogTitle>Tạo thiết bị cơ khí mới</DialogTitle>
@@ -167,56 +186,56 @@ export default function EquipmentModal({
               className="space-y-8"
               noValidate
             >
-              <FormSection title="Thông tin cơ bản">
-                <FormField
-                  control={form.control}
-                  name="equipmentName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Tên MMTB
-                        <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g. CNC Milling Machine"
-                          autoComplete="off"
-                          {...field}
-                        />
-                      </FormControl>
-                      {/* <FormMessage /> */}
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="equipmentCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Mã MMTB
-                        <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g. EQ-001"
-                          autoComplete="off"
-                          {...field}
-                        />
-                      </FormControl>
-                      {/* <FormMessage /> */}
-                    </FormItem>
-                  )}
-                />
-              </FormSection>
+              <div className="space-y-3">
+                <FormSection title="Thông tin cơ bản">
+                  <FormField
+                    control={form.control}
+                    name="equipmentName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Tên MMTB
+                          <span className="text-destructive">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g. CNC Milling Machine"
+                            autoComplete="off"
+                            {...field}
+                          />
+                        </FormControl>
+                        {/* <FormMessage /> */}
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="equipmentCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Mã MMTB
+                          <span className="text-destructive">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g. EQ-001"
+                            autoComplete="off"
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </FormSection>
 
-              {/* ✅ Shared error message */}
-              {(errors.equipmentName || errors.equipmentCode) && (
-                <p className="text-sm text-destructive">
-                  {errors.equipmentName?.message ||
-                    errors.equipmentCode?.message}
-                </p>
-              )}
+                {/* ✅ Shared error message */}
+                {(errors.equipmentName || errors.equipmentCode) && (
+                  <p className="text-sm text-destructive">
+                    Tên MMTB/Mã MMTB còn thiếu. Hãy điền đầy đủ
+                  </p>
+                )}
+              </div>
 
               <FormSection title="Nhóm MMTB">
                 {(
@@ -244,7 +263,7 @@ export default function EquipmentModal({
                 ))}
               </FormSection>
 
-              <FormSection title="Organization">
+              <FormSection title="THÔNG TIN TỔ CHỨC">
                 <FormField
                   control={form.control}
                   name="organization.factory"
@@ -362,21 +381,21 @@ export default function EquipmentModal({
             onClick={() => onOpenChange(false)}
             disabled={isSubmitting}
           >
-            Cancel
+            Hủy bỏ
           </Button>
           <Button
             type="submit"
             form="equipment-create-form"
             disabled={isSubmitting}
-            className="min-w-35"
+            className="min-w-35 bg-brand"
           >
             {isSubmitting ? (
               <>
                 <Loader2 className="animate-spin" aria-hidden />
-                Saving…
+                Đang lưu
               </>
             ) : (
-              "Save Equipment"
+              "Lưu thiết bị"
             )}
           </Button>
         </DialogFooter>

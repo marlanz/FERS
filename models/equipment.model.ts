@@ -93,5 +93,15 @@ const EquipmentSchema = new Schema(
   },
 );
 
+// Ensure partial unique index on equipmentCode (excluding 'invest')
+EquipmentSchema.index(
+  { equipmentCode: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { equipmentCode: { $ne: "đầu tư" } },
+    sparse: true,
+  },
+);
+
 export const EquipmentModel =
   models.Equipment || model("Equipment", EquipmentSchema);
