@@ -84,7 +84,14 @@ const EquipmentSchema = new Schema(
 
     status: {
       type: String,
-      enum: ["active", "maintenance", "inactive", "inspection"],
+      enum: [
+        "active",
+        "inactive",
+        "sold",
+        "pending-investment",
+        "maintenance",
+        "inspection",
+      ],
       default: "active",
     },
   },
