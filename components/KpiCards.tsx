@@ -1,9 +1,14 @@
 "use client";
 
 import React from "react";
-import { Cpu, Factory, GitBranch, CheckCircle2, AlertTriangle } from "lucide-react";
+import {
+  Cpu,
+  Factory,
+  GitBranch,
+  CheckCircle2,
+  AlertTriangle,
+} from "lucide-react";
 import { SparklineChart } from "./SparklineChart";
-
 
 interface KpiCardProps {
   title: string;
@@ -15,7 +20,15 @@ interface KpiCardProps {
   accent?: boolean;
 }
 
-function KpiCard({ title, value, subtitle, trend, sparkData, icon, accent }: KpiCardProps) {
+function KpiCard({
+  title,
+  value,
+  subtitle,
+  trend,
+  sparkData,
+  icon,
+  accent,
+}: KpiCardProps) {
   const isPositive = trend >= 0;
   return (
     <div
@@ -58,15 +71,43 @@ function KpiCard({ title, value, subtitle, trend, sparkData, icon, accent }: Kpi
         />
       )}
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+        }}
+      >
         <div>
-          <div style={{ fontSize: "12px", fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <div
+            style={{
+              fontSize: "12px",
+              fontWeight: 500,
+              color: "var(--color-text-secondary)",
+              marginBottom: "6px",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
             {title}
           </div>
-          <div style={{ fontSize: "32px", fontWeight: 800, color: accent ? "rgb(233,34,39)" : "var(--color-text-primary)", lineHeight: 1 }}>
+          <div
+            style={{
+              fontSize: "32px",
+              fontWeight: 800,
+              color: accent ? "rgb(233,34,39)" : "var(--color-text-primary)",
+              lineHeight: 1,
+            }}
+          >
             {value.toLocaleString()}
           </div>
-          <div style={{ fontSize: "12px", color: "var(--color-text-muted)", marginTop: "4px" }}>
+          <div
+            style={{
+              fontSize: "12px",
+              color: "var(--color-text-muted)",
+              marginTop: "4px",
+            }}
+          >
             {subtitle}
           </div>
         </div>
@@ -75,7 +116,9 @@ function KpiCard({ title, value, subtitle, trend, sparkData, icon, accent }: Kpi
             width: "44px",
             height: "44px",
             borderRadius: "10px",
-            background: accent ? "rgba(233,34,39,0.1)" : "var(--color-surface-2)",
+            background: accent
+              ? "rgba(233,34,39,0.1)"
+              : "var(--color-surface-2)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -87,24 +130,38 @@ function KpiCard({ title, value, subtitle, trend, sparkData, icon, accent }: Kpi
         </div>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
         <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
           <span
             style={{
               fontSize: "12px",
               fontWeight: 600,
               color: isPositive ? "#10b981" : "#ef4444",
-              background: isPositive ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)",
+              background: isPositive
+                ? "rgba(16,185,129,0.1)"
+                : "rgba(239,68,68,0.1)",
               padding: "2px 6px",
               borderRadius: "4px",
             }}
           >
-            {isPositive ? "+" : ""}{trend}%
+            {isPositive ? "+" : ""}
+            {trend}%
           </span>
-          <span style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>vs last month</span>
+          <span style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>
+            vs last month
+          </span>
         </div>
         <div style={{ width: "80px", height: "32px" }}>
-          <SparklineChart data={sparkData} color={accent ? "rgb(233,34,39)" : "#6b7280"} />
+          <SparklineChart
+            data={sparkData}
+            color={accent ? "rgb(233,34,39)" : "#6b7280"}
+          />
         </div>
       </div>
     </div>
@@ -119,7 +176,13 @@ interface KpiCardsProps {
   maintenanceDue: number;
 }
 
-export default function KpiCards({ totalEquipment, totalFactories, totalWorkCenters, activeEquipment, maintenanceDue }: KpiCardsProps) {
+export default function KpiCards({
+  totalEquipment,
+  totalFactories,
+  totalWorkCenters,
+  activeEquipment,
+  maintenanceDue,
+}: KpiCardsProps) {
   return (
     <div
       style={{
@@ -129,18 +192,18 @@ export default function KpiCards({ totalEquipment, totalFactories, totalWorkCent
       }}
     >
       <KpiCard
-        title="Total Equipment"
+        title="TỔNG THẾT BỊ"
         value={totalEquipment}
-        subtitle="All registered assets"
+        subtitle="Thiết bị đã đăng kí"
         trend={8.2}
         sparkData={[18, 20, 19, 22, 24, 25, 28, 30]}
         icon={<Cpu size={20} />}
         accent
       />
       <KpiCard
-        title="Total Factories"
+        title="TỔNG NHÀ MÁY"
         value={totalFactories}
-        subtitle="Active production sites"
+        subtitle="Nhà máy hoạt động"
         trend={0}
         sparkData={[3, 3, 3, 4, 4, 4, 4, totalFactories]}
         icon={<Factory size={20} />}
@@ -148,7 +211,7 @@ export default function KpiCards({ totalEquipment, totalFactories, totalWorkCent
       <KpiCard
         title="Work Centers"
         value={totalWorkCenters}
-        subtitle="Operational work centers"
+        subtitle="Xưởng hoạt động"
         trend={5.1}
         sparkData={[8, 10, 9, 11, 12, 13, 14, totalWorkCenters]}
         icon={<GitBranch size={20} />}
@@ -156,7 +219,7 @@ export default function KpiCards({ totalEquipment, totalFactories, totalWorkCent
       <KpiCard
         title="Active Equipment"
         value={activeEquipment}
-        subtitle={`${Math.round((activeEquipment / totalEquipment) * 100)}% of total fleet`}
+        subtitle={`${Math.round((activeEquipment / totalEquipment) * 100)}% Số thiết bị hoạt động`}
         trend={3.4}
         sparkData={[14, 16, 15, 18, 19, 20, 21, activeEquipment]}
         icon={<CheckCircle2 size={20} />}
@@ -164,7 +227,7 @@ export default function KpiCards({ totalEquipment, totalFactories, totalWorkCent
       <KpiCard
         title="Maintenance Due"
         value={maintenanceDue}
-        subtitle="Requires immediate action"
+        subtitle="Thiết bị cần bảo trì"
         trend={-12.5}
         sparkData={[6, 5, 7, 6, 5, 4, 3, maintenanceDue]}
         icon={<AlertTriangle size={20} />}

@@ -112,7 +112,7 @@ export default function EquipmentToolbar({
           }}
         >
           <SlidersHorizontal size={14} />
-          Filters
+          Bộ lọc
           {activeFiltersCount > 0 && (
             <span
               style={{
@@ -147,7 +147,7 @@ export default function EquipmentToolbar({
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search by name, code, factory, brand..."
+            placeholder="Tìm kiếm theo tên, mã MMTB, nhà máy, hãng sản xuất..."
             style={{
               width: "100%",
               height: "34px",
@@ -248,7 +248,7 @@ export default function EquipmentToolbar({
               color: "rgb(233,34,39)",
             }}
           >
-            <span>{selectedCount} selected:</span>
+            <span>{selectedCount} Đã chọn:</span>
             <button
               style={{
                 background: "none",
@@ -260,7 +260,7 @@ export default function EquipmentToolbar({
                 fontWeight: 600,
               }}
             >
-              Export
+              Xuất dữ liệu
             </button>
             <span style={{ color: "rgba(233,34,39,0.4)" }}>|</span>
             <button
@@ -279,7 +279,7 @@ export default function EquipmentToolbar({
                 opacity: isDeleting || !onDeleteSelected ? 0.5 : 1,
               }}
             >
-              {isDeleting ? "Deleting…" : "Delete"}
+              {isDeleting ? "Đang xóa..." : "Xóa"}
             </button>
           </div>
         )}
@@ -292,6 +292,7 @@ export default function EquipmentToolbar({
           onClick={onRefresh}
         >
           <RefreshCw size={14} />
+          Tải lại
         </button>
 
         {/* Import dropdown */}
@@ -308,7 +309,7 @@ export default function EquipmentToolbar({
             aria-expanded={importMenuOpen}
           >
             <FileSpreadsheet size={14} />
-            Import
+            Nhập
             <ChevronDown
               size={12}
               style={{
@@ -382,7 +383,7 @@ export default function EquipmentToolbar({
                   <FileJson size={14} style={{ color: "rgb(233,34,39)" }} />
                 </span>
                 <div>
-                  <div>Import JSON</div>
+                  <div>Nhập với JSON</div>
                   <div
                     style={{
                       fontSize: "11px",
@@ -390,7 +391,7 @@ export default function EquipmentToolbar({
                       fontWeight: 400,
                     }}
                   >
-                    .json array of records
+                    Không được truy cập
                   </div>
                 </div>
               </button>
@@ -449,7 +450,7 @@ export default function EquipmentToolbar({
                   <TableIcon size={14} style={{ color: "#22c55e" }} />
                 </span>
                 <div>
-                  <div>Import Excel</div>
+                  <div>Nhập với Excel</div>
                   <div
                     style={{
                       fontSize: "11px",
@@ -457,7 +458,7 @@ export default function EquipmentToolbar({
                       fontWeight: 400,
                     }}
                   >
-                    .xlsx, .xls file
+                    Chấp nhận file .xlsx, .xls
                   </div>
                 </div>
               </button>
@@ -475,7 +476,7 @@ export default function EquipmentToolbar({
         {/* Export */}
         <button className="btn-ghost" style={{ height: "34px", flexShrink: 0 }}>
           <Download size={14} />
-          Export
+          Xuất
         </button>
 
         {/* Add */}
@@ -485,7 +486,7 @@ export default function EquipmentToolbar({
           style={{ height: "34px", flexShrink: 0, fontWeight: 600 }}
         >
           <Plus size={14} />
-          Add Equipment
+          Thêm thiết bị
         </button>
       </div>
     </div>

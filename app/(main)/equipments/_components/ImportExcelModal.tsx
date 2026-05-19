@@ -329,7 +329,7 @@ export default function ImportExcelModal({
         message: lines,
       });
 
-      if (data.inserted > 0) onSuccess();
+      // if (data.inserted > 0) onSuccess();
     } catch (err) {
       showToast({
         type: "error",

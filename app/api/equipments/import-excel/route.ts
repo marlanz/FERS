@@ -82,39 +82,53 @@ export async function POST(req: Request) {
     }));
 
     // Filter out equipments with duplicate equipmentCode (except those starting with 'Đầu tư')
-    const codesToCheck = equipments
-      .filter(eq => eq.equipmentCode && !eq.equipmentCode.startsWith('Đầu tư'))
-      .map(eq => eq.equipmentCode);
+    // const codesToCheck = equipments
+    //   .filter(
+    //     (eq) => eq.equipmentCode && !eq.equipmentCode.startsWith("Đầu tư"),
+    //   )
+    //   .map((eq) => eq.equipmentCode);
 
     // Find existing codes in DB
-    const existingDocs = codesToCheck.length > 0
-      ? await EquipmentModel.find({ equipmentCode: { $in: codesToCheck } }, { equipmentCode: 1 }).lean()
-      : [];
-    const existingCodes = new Set(existingDocs.map(doc => doc.equipmentCode));
+    // const existingDocs =
+    //   codesToCheck.length > 0
+    //     ? await EquipmentModel.find(
+    //         { equipmentCode: { $in: codesToCheck } },
+    //         { equipmentCode: 1 },
+    //       ).lean()
+    //     : [];
+    // const existingCodes = new Set(existingDocs.map((doc) => doc.equipmentCode));
 
     // Filter equipments to insert
-    const toInsert = equipments.filter(eq => {
-      if (!eq.equipmentCode) return true;
-      if (eq.equipmentCode.startsWith('Đầu tư')) return true;
-      return !existingCodes.has(eq.equipmentCode);
-    });
-    const skippedCodes = equipments
-      .filter(eq => eq.equipmentCode && !eq.equipmentCode.startsWith('Đầu tư') && existingCodes.has(eq.equipmentCode))
-      .map(eq => eq.equipmentCode);
+    // const toInsert = equipments.filter((eq) => {
+    //   if (!eq.equipmentCode) return true;
+    //   if (eq.equipmentCode.startsWith("Đầu tư")) return true;
+    //   return !existingCodes.has(eq.equipmentCode);
+    // });
+    // const skippedCodes = equipments
+    //   .filter(
+    //     (eq) =>
+    //       eq.equipmentCode &&
+    //       !eq.equipmentCode.startsWith("Đầu tư") &&
+    //       existingCodes.has(eq.equipmentCode),
+    //   )
+    //   .map((eq) => eq.equipmentCode);
 
     // Save MongoDB
-    let result = [];
-    if (toInsert.length > 0) {
-      result = await EquipmentModel.insertMany(toInsert, {
-        ordered: false,
-      });
-    }
+    // let result = [];
+    // if (toInsert.length > 0) {
+    //   result = await EquipmentModel.insertMany(toInsert, {
+    //     ordered: false,
+    //   });
+    // }
+
+    const result = await EquipmentModel.insertMany(equipments, {
+      ordered: false,
+    });
 
     return NextResponse.json({
       success: true,
       inserted: result.length,
       total: equipments.length,
-      skippedCodes,
       // sheetName: sheet,
     });
   } catch (error: any) {

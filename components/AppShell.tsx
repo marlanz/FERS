@@ -1,20 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import TopHeader from "@/components/TopHeader";
+import { useSidebarStore } from "@/lib/store/useSidebarStore";
 
 interface AppShellProps {
   children: React.ReactNode;
 }
 
 export default function AppShell({ children }: AppShellProps) {
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, setDarkMode, hydrated } = useSidebarStore();
 
-  // Dark mode
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
+
+  if (!hydrated) return null;
 
   return (
     <div
@@ -31,7 +33,7 @@ export default function AppShell({ children }: AppShellProps) {
         {/* Global header */}
         <TopHeader
           darkMode={darkMode}
-          onToggleDark={() => setDarkMode((d) => !d)}
+          onToggleDark={() => setDarkMode(!darkMode)}
         />
 
         {/* Page content */}
