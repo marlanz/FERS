@@ -28,6 +28,8 @@ import EquipmentDetailPanel from "@/app/(main)/equipments/_components/EquipmentD
 import ImportJsonModal from "@/app/(main)/equipments/_components/ImportJsonModal";
 import ImportExcelModal from "./ImportExcelModal";
 import EquipmentModal from "@/app/(main)/equipments/_components/EquipmentModal";
+import EquipmentKpiSkeleton from "@/app/(main)/equipments/_components/EquipmentKpiSkeleton";
+import EquipmentTableSkeleton from "@/app/(main)/equipments/_components/EquipmentTableSkeleton";
 
 function uniq<T>(arr: T[]): T[] {
   return [...new Set(arr)].sort((a, b) => String(a).localeCompare(String(b)));
@@ -126,7 +128,7 @@ export function EquipmentPageInner() {
   // ── TanStack Query: fetch equipments from API ──
   const {
     data: allEquipment = [],
-    isLoading: loading,
+    isLoading,
     isError,
     error,
     refetch,
@@ -354,7 +356,11 @@ export function EquipmentPageInner() {
       )}
 
       {/* ── KPI summary strip ── */}
-      <EquipmentKpiRow data={allEquipment} />
+      {isLoading ? (
+        <EquipmentKpiSkeleton />
+      ) : (
+        <EquipmentKpiRow data={allEquipment} />
+      )}
 
       {/* ── Body row: filter panel + table ── */}
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
@@ -482,21 +488,28 @@ export function EquipmentPageInner() {
               flexShrink: 0,
             }}
           >
-            <span
-              style={{ fontSize: "12px", color: "var(--color-text-secondary)" }}
-            >
-              Showing{" "}
-              <strong style={{ color: "var(--color-text-primary)" }}>
-                {filteredData.length}
-              </strong>{" "}
-              of{" "}
-              <strong style={{ color: "rgb(233,34,39)" }}>
-                {allEquipment.length}
-              </strong>{" "}
-              records
-            </span>
+            {isLoading ? (
+              <div
+                className="skeleton"
+                style={{ height: 14, width: 180, borderRadius: 4 }}
+              />
+            ) : (
+              <span
+                style={{ fontSize: "12px", color: "var(--color-text-secondary)" }}
+              >
+                Showing{" "}
+                <strong style={{ color: "var(--color-text-primary)" }}>
+                  {filteredData.length}
+                </strong>{" "}
+                of{" "}
+                <strong style={{ color: "rgb(233,34,39)" }}>
+                  {allEquipment.length}
+                </strong>{" "}
+                records
+              </span>
+            )}
 
-            {debouncedSearch && (
+            {!isLoading && debouncedSearch && (
               <span
                 style={{
                   fontSize: "11px",
@@ -511,7 +524,7 @@ export function EquipmentPageInner() {
               </span>
             )}
 
-            {selectedCodes.size > 0 && (
+            {!isLoading && selectedCodes.size > 0 && (
               <>
                 <div style={{ flex: 1 }} />
                 <span
@@ -531,18 +544,17 @@ export function EquipmentPageInner() {
             )}
           </div>
 
-          {/* Table or loading shimmer */}
-          {/* {loading ? (
-            <LoadingSkeleton />
-          ) : ( */}
-          <EquipmentDataTable
-            data={filteredData}
-            density={density}
-            onRowClick={handleRowClick}
-            selectedCodes={selectedCodes}
-            onSelectionChange={setSelectedCodes}
-          />
-          {/* )} */}
+          {isLoading ? (
+            <EquipmentTableSkeleton density={density} />
+          ) : (
+            <EquipmentDataTable
+              data={filteredData}
+              density={density}
+              onRowClick={handleRowClick}
+              selectedCodes={selectedCodes}
+              onSelectionChange={setSelectedCodes}
+            />
+          )}
         </div>
       </div>
 
