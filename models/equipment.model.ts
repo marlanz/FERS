@@ -41,7 +41,7 @@ const EquipmentSchema = new Schema(
 
     equipmentName: {
       type: String,
-      required: true,
+      // required: true,
       trim: true,
     },
 
@@ -54,17 +54,17 @@ const EquipmentSchema = new Schema(
 
     equipmentGroup: {
       type: EquipmentGroupSchema,
-      required: true,
+      // required: true,
     },
 
     organization: {
       type: OrganizationSchema,
-      required: true,
+      // required: true,
     },
 
     manufacturer: {
       type: ManufacturerSchema,
-      required: true,
+      // required: true,
     },
 
     specification: {
@@ -90,16 +90,6 @@ const EquipmentSchema = new Schema(
   },
   {
     timestamps: true,
-  },
-);
-
-// Ensure partial unique index on equipmentCode (excluding 'invest')
-EquipmentSchema.index(
-  { equipmentCode: 1 },
-  {
-    unique: true,
-    partialFilterExpression: { equipmentCode: { $ne: "đầu tư" } },
-    sparse: true,
   },
 );
 

@@ -11,7 +11,7 @@ interface EquipmentKpiRowProps {
 const STATUSES = [
   {
     key: "active",
-    label: "Active",
+    label: "Đang hoạt động",
     color: "#10b981",
     bg: "rgba(16,185,129,0.08)",
     border: "rgba(16,185,129,0.2)",
@@ -19,7 +19,7 @@ const STATUSES = [
   },
   {
     key: "maintenance",
-    label: "Maintenance",
+    label: "Đang bảo trì",
     color: "#f59e0b",
     bg: "rgba(245,158,11,0.08)",
     border: "rgba(245,158,11,0.2)",
@@ -27,7 +27,7 @@ const STATUSES = [
   },
   {
     key: "inspection",
-    label: "Inspection",
+    label: "Đã thanh lý",
     color: "#3b82f6",
     bg: "rgba(59,130,246,0.08)",
     border: "rgba(59,130,246,0.2)",
@@ -35,7 +35,7 @@ const STATUSES = [
   },
   {
     key: "inactive",
-    label: "Inactive",
+    label: "Ngưng sử dụng",
     color: "#6b7280",
     bg: "rgba(107,114,128,0.08)",
     border: "rgba(107,114,128,0.2)",
@@ -46,8 +46,8 @@ const STATUSES = [
 export default function EquipmentKpiRow({ data }: EquipmentKpiRowProps) {
   const counts = {
     active: data.filter((d) => (d.status ?? "active") === "active").length,
-    maintenance: data.filter((d) => d.status === "maintenance").length,
-    inspection: data.filter((d) => d.status === "inspection").length,
+    maintenance: data.filter((d) => d.status === "sold").length,
+    inspection: data.filter((d) => d.status === "pending-investment").length,
     inactive: data.filter((d) => d.status === "inactive").length,
   };
   const total = data.length;

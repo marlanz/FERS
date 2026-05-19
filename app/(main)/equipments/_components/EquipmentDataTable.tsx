@@ -23,13 +23,13 @@ const STATUS_CFG: Record<
     bg: "rgba(16,185,129,0.08)",
     border: "rgba(16,185,129,0.25)",
   },
-  maintenance: {
+  "pending-investment": {
     label: "Maintenance",
     color: "#d97706",
     bg: "rgba(245,158,11,0.08)",
     border: "rgba(245,158,11,0.25)",
   },
-  inspection: {
+  sold: {
     label: "Inspection",
     color: "#2563eb",
     bg: "rgba(59,130,246,0.08)",
@@ -367,7 +367,7 @@ export default function EquipmentDataTable({
               </th>
               <CustomTblRow
                 col="equipmentCode"
-                label="Code"
+                label="Mã MMTB"
                 width={120}
                 handleSort={handleSort}
                 sortDir={sortDir}
@@ -375,7 +375,7 @@ export default function EquipmentDataTable({
               />
               <CustomTblRow
                 col="equipmentName"
-                label="Equipment Name"
+                label="Tên MMTB"
                 width={200}
                 handleSort={handleSort}
                 sortDir={sortDir}
@@ -383,7 +383,7 @@ export default function EquipmentDataTable({
               />
               <CustomTblRow
                 col="factory"
-                label="Factory"
+                label="Nhà máy"
                 width={110}
                 handleSort={handleSort}
                 sortDir={sortDir}
@@ -391,7 +391,7 @@ export default function EquipmentDataTable({
               />
               <CustomTblRow
                 col="workshop"
-                label="Workshop"
+                label="Xưởng"
                 width={90}
                 handleSort={handleSort}
                 sortDir={sortDir}
@@ -399,7 +399,7 @@ export default function EquipmentDataTable({
               />
               <CustomTblRow
                 col="group2"
-                label="Equipment Group"
+                label="Nhóm thiết bị"
                 width={160}
                 handleSort={handleSort}
                 sortDir={sortDir}
@@ -407,7 +407,7 @@ export default function EquipmentDataTable({
               />
               <CustomTblRow
                 col="brand"
-                label="Brand"
+                label="Hãng"
                 width={120}
                 handleSort={handleSort}
                 sortDir={sortDir}
@@ -423,7 +423,7 @@ export default function EquipmentDataTable({
               />
               <CustomTblRow
                 col="produceYear"
-                label="Year"
+                label="Năm sản xuất"
                 width={70}
                 handleSort={handleSort}
                 sortDir={sortDir}
@@ -431,7 +431,7 @@ export default function EquipmentDataTable({
               />
               <CustomTblRow
                 col="status"
-                label="Status"
+                label="Trạng thái"
                 width={120}
                 handleSort={handleSort}
                 sortDir={sortDir}
@@ -439,7 +439,7 @@ export default function EquipmentDataTable({
               />
               <CustomTblRow
                 col="installationLocation"
-                label="Location"
+                label="Khu vực lắp đặt"
                 width={90}
                 handleSort={handleSort}
                 sortDir={sortDir}

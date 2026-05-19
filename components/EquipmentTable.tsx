@@ -13,10 +13,11 @@ import {
 import type { Equipment, EquipmentStatus } from "@/types/equipment";
 
 const STATUS_MAP: Record<EquipmentStatus, { label: string; cls: string }> = {
-  active: { label: "Active", cls: "badge-active" },
-  maintenance: { label: "Maintenance", cls: "badge-maintenance" },
-  inactive: { label: "Inactive", cls: "badge-inactive" },
-  inspection: { label: "Inspection", cls: "badge-inspection" },
+  active: { label: "Hoạt ", cls: "badge-active" },
+  // maintenance: { label: "Đang bảo trì", cls: "badge-maintenance" },
+  inactive: { label: "Đã thanh lý", cls: "badge-inactive" },
+  sold: { label: "Inspection", cls: "badge-inspection" },
+  "pending-investment": { label: "Đầu tư", cls: "hand-coins" },
 };
 
 type SortKey =
@@ -44,7 +45,7 @@ interface ColDef {
 const COLUMNS: ColDef[] = [
   {
     key: "equipmentName",
-    label: "Equipment Name",
+    label: "Tên MMTB",
     width: 180,
     render: (r) => (
       <div style={{ display: "flex", flexDirection: "column" }}>
@@ -471,8 +472,8 @@ export default function EquipmentTable({
         <span
           style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}
         >
-          Showing {Math.min((page - 1) * pageSize + 1, sorted.length)}–
-          {Math.min(page * pageSize, sorted.length)} of {sorted.length}
+          Đang hiện {Math.min((page - 1) * pageSize + 1, sorted.length)}–
+          {Math.min(page * pageSize, sorted.length)} trên {sorted.length}
         </span>
         <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
           <button

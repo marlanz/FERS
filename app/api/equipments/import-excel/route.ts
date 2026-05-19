@@ -4,9 +4,13 @@ import * as XLSX from "xlsx";
 import connectDB from "@/lib/mongodb";
 import { EquipmentModel } from "@/models/equipment.model";
 
+import {
+  normalizeEquipmentCode,
+  parseEquipmentStatus,
+} from "@/lib/utils/equipmentParser";
+
 export async function POST(req: Request) {
   try {
-    // Connect MongoDB
     await connectDB();
 
     const formData = await req.formData();
@@ -28,18 +32,18 @@ export async function POST(req: Request) {
 
     const sheet = workbook.Sheets[sheetName];
 
-    // IMPORTANT
-    // range: 0 nếu header nằm ngay dòng đầu
     const rows = XLSX.utils.sheet_to_json(sheet, {
       defval: "",
     });
 
     const equipments = rows.map((row: any, index: number) => ({
+      excelRow: index + 2, // +2 because Excel starts at row 1 and row 1 is header
+
       no: Number(row.no || index + 1),
 
       equipmentName: String(row.equipmentName || "").trim(),
 
-      equipmentCode: String(row.equipmentCode || "").trim(),
+      equipmentCode: normalizeEquipmentCode(row.equipmentCode),
 
       equipmentGroup: {
         level1: String(row.groupLevel1 || "").trim(),
@@ -78,59 +82,46 @@ export async function POST(req: Request) {
 
       note: String(row.note || "").trim(),
 
-      status: "active",
+      status: parseEquipmentStatus(row.equipmentCode),
     }));
 
-    // Filter out equipments with duplicate equipmentCode (except those starting with 'Đầu tư')
-    // const codesToCheck = equipments
-    //   .filter(
-    //     (eq) => eq.equipmentCode && !eq.equipmentCode.startsWith("Đầu tư"),
-    //   )
-    //   .map((eq) => eq.equipmentCode);
+    try {
+      const result = await EquipmentModel.insertMany(equipments, {
+        ordered: false,
+      });
 
-    // Find existing codes in DB
-    // const existingDocs =
-    //   codesToCheck.length > 0
-    //     ? await EquipmentModel.find(
-    //         { equipmentCode: { $in: codesToCheck } },
-    //         { equipmentCode: 1 },
-    //       ).lean()
-    //     : [];
-    // const existingCodes = new Set(existingDocs.map((doc) => doc.equipmentCode));
+      return NextResponse.json({
+        success: true,
+        inserted: result.length,
+        total: equipments.length,
+        skippedRows: [],
+      });
+    } catch (error: any) {
+      // Mongo Bulk Write Error
+      if (error?.writeErrors) {
+        const skippedRows = error.writeErrors.map((err: any) => {
+          const failedDoc = err.err.op;
 
-    // Filter equipments to insert
-    // const toInsert = equipments.filter((eq) => {
-    //   if (!eq.equipmentCode) return true;
-    //   if (eq.equipmentCode.startsWith("Đầu tư")) return true;
-    //   return !existingCodes.has(eq.equipmentCode);
-    // });
-    // const skippedCodes = equipments
-    //   .filter(
-    //     (eq) =>
-    //       eq.equipmentCode &&
-    //       !eq.equipmentCode.startsWith("Đầu tư") &&
-    //       existingCodes.has(eq.equipmentCode),
-    //   )
-    //   .map((eq) => eq.equipmentCode);
+          return {
+            row: failedDoc.excelRow,
+            equipmentCode: failedDoc.equipmentCode,
+            equipmentName: failedDoc.equipmentName,
+            reason: err.errmsg,
+          };
+        });
 
-    // Save MongoDB
-    // let result = [];
-    // if (toInsert.length > 0) {
-    //   result = await EquipmentModel.insertMany(toInsert, {
-    //     ordered: false,
-    //   });
-    // }
+        const inserted = equipments.length - skippedRows.length;
 
-    const result = await EquipmentModel.insertMany(equipments, {
-      ordered: false,
-    });
+        return NextResponse.json({
+          success: true,
+          inserted,
+          total: equipments.length,
+          skippedRows,
+        });
+      }
 
-    return NextResponse.json({
-      success: true,
-      inserted: result.length,
-      total: equipments.length,
-      // sheetName: sheet,
-    });
+      throw error;
+    }
   } catch (error: any) {
     console.error("[UPLOAD_ERROR]", error);
 

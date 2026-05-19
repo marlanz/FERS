@@ -1,8 +1,8 @@
 export type EquipmentStatus =
   | "active"
-  | "maintenance"
   | "inactive"
-  | "inspection";
+  | "sold"
+  | "pending-investment";
 
 export interface EquipmentGroup {
   level1: string;
