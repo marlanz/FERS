@@ -89,3 +89,12 @@ export const EquipmentCreateSchema = EquipmentFormSchema.transform((data) => ({
 
 export type EquipmentCreateInput = z.input<typeof EquipmentCreateSchema>;
 export type EquipmentCreatePayload = z.output<typeof EquipmentCreateSchema>;
+
+/** Bulk delete — selection is keyed by equipmentCode in the table UI. */
+export const DeleteEquipmentSchema = z.object({
+  equipmentCodes: z
+    .array(z.string().trim().min(1))
+    .min(1, "Select at least one equipment to delete"),
+});
+
+export type DeleteEquipmentInput = z.infer<typeof DeleteEquipmentSchema>;

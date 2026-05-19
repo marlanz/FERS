@@ -9,7 +9,12 @@ import React, {
   Suspense,
 } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { toast } from "sonner";
 import { useEquipments } from "@/lib/hooks/useEquipments";
+import type {
+  ApiErrorResponse,
+  DeleteEquipmentSuccessResponse,
+} from "@/lib/equipment/api-types";
 import type { Equipment, EquipmentFilters } from "@/types/equipment";
 
 // ── sub-components ──────────────────────────────────────────────────────────
@@ -148,6 +153,7 @@ export function EquipmentPageInner() {
   const [importJsonOpen, setImportJsonOpen] = useState(false);
   const [importExcelOpen, setImportExcelOpen] = useState(false);
   const [addEquipmentOpen, setAddEquipmentOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // ── debounced search ──
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -216,6 +222,58 @@ export function EquipmentPageInner() {
   );
   const handleCloseDetail = useCallback(() => setDetailEquipment(null), []);
 
+  const handleDeleteSelected = useCallback(async () => {
+    if (selectedCodes.size === 0) return;
+
+    const codes = Array.from(selectedCodes);
+    const confirmed = window.confirm(
+      `Delete ${codes.length} equipment record${codes.length > 1 ? "s" : ""}? This cannot be undone.`,
+    );
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch("/api/equipments", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ equipmentCodes: codes }),
+      });
+
+      const json = (await res.json()) as
+        | DeleteEquipmentSuccessResponse
+        | ApiErrorResponse;
+
+      if (!res.ok) {
+        const err = json as ApiErrorResponse;
+        toast.error(err.error ?? "Failed to delete equipment.");
+        return;
+      }
+
+      const { deletedCount } = json as DeleteEquipmentSuccessResponse;
+
+      if (deletedCount === 0) {
+        toast.warning("No matching records were found to delete.");
+      } else {
+        toast.success(
+          `Deleted ${deletedCount} equipment record${deletedCount > 1 ? "s" : ""}.`,
+        );
+      }
+
+      setSelectedCodes(new Set());
+      if (
+        detailEquipment &&
+        codes.includes(detailEquipment.equipmentCode)
+      ) {
+        setDetailEquipment(null);
+      }
+      refetch();
+    } catch {
+      toast.error("Network error. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [selectedCodes, detailEquipment, refetch]);
+
   // ── remove one filter chip ──
   const removeFilterValue = useCallback(
     (key: keyof EquipmentFilters, val: string) => {
@@ -252,6 +310,8 @@ export function EquipmentPageInner() {
         onRefresh={() => refetch()}
         onImportJson={() => setImportJsonOpen(true)}
         onImportExcel={() => setImportExcelOpen(true)}
+        onDeleteSelected={handleDeleteSelected}
+        isDeleting={isDeleting}
       />
 
       {/* ── API error banner ── */}

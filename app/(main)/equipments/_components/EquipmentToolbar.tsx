@@ -27,6 +27,8 @@ interface EquipmentToolbarProps {
   onRefresh?: () => void;
   onImportJson?: () => void;
   onImportExcel?: () => void;
+  onDeleteSelected?: () => void;
+  isDeleting?: boolean;
 }
 
 export default function EquipmentToolbar({
@@ -41,6 +43,8 @@ export default function EquipmentToolbar({
   onAddEquipment,
   onRefresh,
   onImportExcel,
+  onDeleteSelected,
+  isDeleting = false,
 }: EquipmentToolbarProps) {
   const [importMenuOpen, setImportMenuOpen] = useState(false);
   const importMenuRef = useRef<HTMLDivElement>(null);
@@ -260,17 +264,22 @@ export default function EquipmentToolbar({
             </button>
             <span style={{ color: "rgba(233,34,39,0.4)" }}>|</span>
             <button
+              type="button"
+              onClick={onDeleteSelected}
+              disabled={isDeleting || !onDeleteSelected}
               style={{
                 background: "none",
                 border: "none",
-                cursor: "pointer",
+                cursor:
+                  isDeleting || !onDeleteSelected ? "not-allowed" : "pointer",
                 color: "#ef4444",
                 fontSize: "12px",
                 padding: "0 4px",
                 fontWeight: 600,
+                opacity: isDeleting || !onDeleteSelected ? 0.5 : 1,
               }}
             >
-              Delete
+              {isDeleting ? "Deleting…" : "Delete"}
             </button>
           </div>
         )}

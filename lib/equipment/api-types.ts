@@ -12,3 +12,11 @@ export interface CreateEquipmentSuccessResponse {
 export type CreateEquipmentResponse =
   | CreateEquipmentSuccessResponse
   | ApiErrorResponse;
+
+export interface DeleteEquipmentSuccessResponse {
+  deletedCount: number;
+}
+
+export type DeleteEquipmentResponse =
+  | DeleteEquipmentSuccessResponse
+  | ApiErrorResponse;

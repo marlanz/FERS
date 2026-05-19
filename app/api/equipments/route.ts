@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { EquipmentModel } from "@/models/equipment.model";
 import connectDB from "@/lib/mongodb";
 import { createEquipment } from "@/lib/equipment/create-equipment";
+import { deleteEquipments } from "@/lib/equipment/delete-equipment";
 import type {
   ApiErrorResponse,
   CreateEquipmentSuccessResponse,
+  DeleteEquipmentSuccessResponse,
 } from "@/lib/equipment/api-types";
 
 // GET /api/equipments — list all equipment
@@ -55,6 +57,43 @@ export async function POST(req: NextRequest) {
     console.error("[POST /api/equipments]", error);
     return NextResponse.json(
       { error: "Failed to create equipment." } satisfies ApiErrorResponse,
+      { status: 500 },
+    );
+  }
+}
+
+// DELETE /api/equipments — bulk delete by equipment codes
+export async function DELETE(req: NextRequest) {
+  try {
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Request body is not valid JSON." } satisfies ApiErrorResponse,
+        { status: 400 },
+      );
+    }
+
+    const result = await deleteEquipments(body);
+
+    if (!result.ok) {
+      return NextResponse.json(
+        {
+          error: result.error,
+          ...(result.fieldErrors ? { fieldErrors: result.fieldErrors } : {}),
+        } satisfies ApiErrorResponse,
+        { status: result.status },
+      );
+    }
+
+    return NextResponse.json(
+      { deletedCount: result.deletedCount } satisfies DeleteEquipmentSuccessResponse,
+    );
+  } catch (error) {
+    console.error("[DELETE /api/equipments]", error);
+    return NextResponse.json(
+      { error: "Failed to delete equipment." } satisfies ApiErrorResponse,
       { status: 500 },
     );
   }
