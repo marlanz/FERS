@@ -9,6 +9,8 @@ import {
   RefreshCw,
   TableIcon,
   ChevronDown,
+  Trash2,
+  X,
 } from "lucide-react";
 
 interface EquipmentGroupToolbarProps {
@@ -17,6 +19,10 @@ interface EquipmentGroupToolbarProps {
   onAddGroup: () => void;
   onRefresh?: () => void;
   onImportExcel?: () => void;
+  /** Number of currently selected rows — shows bulk-delete button when > 0 */
+  selectedCount?: number;
+  onDeleteSelected?: () => void;
+  onClearSelection?: () => void;
 }
 
 export function EquipmentGroupToolbar({
@@ -25,6 +31,9 @@ export function EquipmentGroupToolbar({
   onAddGroup,
   onRefresh,
   onImportExcel,
+  selectedCount = 0,
+  onDeleteSelected,
+  onClearSelection,
 }: EquipmentGroupToolbarProps) {
   const [importMenuOpen, setImportMenuOpen] = useState(false);
   const importMenuRef = useRef<HTMLDivElement>(null);
@@ -263,6 +272,101 @@ export function EquipmentGroupToolbar({
           Thêm nhóm
         </button>
       </div>
+      {/* ── Bulk-action bar — slides in when rows are selected ── */}
+      {selectedCount > 0 && (
+        <div
+          style={{
+            padding: "7px 20px",
+            background: "rgba(233,34,39,0.05)",
+            borderTop: "1px solid rgba(233,34,39,0.15)",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            animation: "slideDown 0.18s ease",
+          }}
+        >
+          <span
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: "rgb(233,34,39)",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <span
+              style={{
+                width: 20,
+                height: 20,
+                borderRadius: "50%",
+                background: "rgb(233,34,39)",
+                color: "white",
+                fontSize: 11,
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 800,
+              }}
+            >
+              {selectedCount}
+            </span>
+            nhóm đã chọn
+          </span>
+
+          <div style={{ flex: 1 }} />
+
+          <button
+            onClick={onClearSelection}
+            className="btn-ghost"
+            style={{ height: 30, padding: "0 10px", fontSize: 12, gap: 5 }}
+          >
+            <X size={12} />
+            Bỏ chọn
+          </button>
+
+          <button
+            id="group-toolbar-bulk-delete-btn"
+            onClick={onDeleteSelected}
+            style={{
+              height: 30,
+              padding: "0 14px",
+              background: "#ef4444",
+              color: "white",
+              border: "none",
+              borderRadius: 7,
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              transition: "background 0.15s, transform 0.1s",
+              boxShadow: "0 2px 8px rgba(239,68,68,0.3)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#dc2626";
+              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.boxShadow = "0 4px 14px rgba(239,68,68,0.4)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "#ef4444";
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 2px 8px rgba(239,68,68,0.3)";
+            }}
+          >
+            <Trash2 size={13} />
+            Xoá {selectedCount} nhóm
+          </button>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }

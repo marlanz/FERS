@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { EquipmentGroupPageClient } from "@/components/equipment-groups/equipment-group-page-client";
+import { EquipmentGroupPageClient } from "@/app/(main)/equipment-groups/_components/equipment-group-page-client";
 
 export const metadata: Metadata = {
   title: "Nhóm thiết bị | EMS Pro",

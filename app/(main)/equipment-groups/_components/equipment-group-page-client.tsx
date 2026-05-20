@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
-import { Cpu, Layers, Network, Box } from "lucide-react";
+import { Cpu, Layers, Network, Box, Trash2, X } from "lucide-react";
 
 import { EquipmentGroupToolbar } from "@/app/(main)/equipment-groups/_components/EquipmentGroupToolbar";
 import { EquipmentGroupTable } from "./equipment-group-table";
@@ -180,6 +180,11 @@ export function EquipmentGroupPageClient() {
   // Filtered count bubbled up from TanStack Table instance → drives results bar
   const [filteredCount, setFilteredCount] = useState(groups.length);
 
+  // Multi-select state — bubbled up from the table for bulk actions
+  const [selectedGroups, setSelectedGroups] = useState<EquipmentGroupRecord[]>([]);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+
   // ── Modal state ───────────────────────────────────────────────────
   const [createOpen, setCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<EquipmentGroupRecord | null>(null);
@@ -226,6 +231,43 @@ export function EquipmentGroupPageClient() {
     refetch();
   }, [invalidate, refetch]);
 
+  const handleBulkDelete = useCallback(async () => {
+    if (selectedGroups.length === 0) return;
+    setIsBulkDeleting(true);
+    let successCount = 0;
+    let failCount = 0;
+    try {
+      await Promise.all(
+        selectedGroups.map(async (group) => {
+          try {
+            const res = await fetch(`/api/equipment-groups/${group._id}`, {
+              method: "DELETE",
+            });
+            if (res.ok) {
+              successCount++;
+            } else {
+              failCount++;
+            }
+          } catch {
+            failCount++;
+          }
+        }),
+      );
+      if (successCount > 0) {
+        toast.success(`Đã xoá ${successCount} nhóm thiết bị.`);
+        await invalidate();
+        refetch();
+      }
+      if (failCount > 0) {
+        toast.error(`${failCount} nhóm không thể xoá. Vui lòng thử lại.`);
+      }
+    } finally {
+      setIsBulkDeleting(false);
+      setBulkDeleteOpen(false);
+      setSelectedGroups([]);
+    }
+  }, [selectedGroups, invalidate, refetch]);
+
   // ── Render ────────────────────────────────────────────────────────
   //
   // Mirrors EquipmentWrapper layout exactly:
@@ -252,6 +294,9 @@ export function EquipmentGroupPageClient() {
         onSearchChange={setSearch}
         onAddGroup={() => setCreateOpen(true)}
         onRefresh={refetch}
+        selectedCount={selectedGroups.length}
+        onDeleteSelected={() => setBulkDeleteOpen(true)}
+        onClearSelection={() => setSelectedGroups([])}
       />
 
       {/* ── Error banner ── */}
@@ -348,6 +393,7 @@ export function EquipmentGroupPageClient() {
           onEdit={handleEdit}
           onDelete={handleDeleteRequest}
           onFilteredCountChange={setFilteredCount}
+          onSelectionChange={setSelectedGroups}
         />
       </div>
 
@@ -375,6 +421,156 @@ export function EquipmentGroupPageClient() {
         onOpenChange={setDeleteOpen}
         onConfirm={handleDeleteConfirm}
       />
+
+      {/* ── Bulk delete confirmation overlay ── */}
+      {bulkDeleteOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "rgba(0,0,0,0.45)",
+            backdropFilter: "blur(4px)",
+          }}
+          onClick={() => !isBulkDeleting && setBulkDeleteOpen(false)}
+        >
+          <div
+            style={{
+              background: "var(--color-surface)",
+              border: "1px solid var(--color-border)",
+              borderRadius: 14,
+              padding: "28px 28px 22px",
+              maxWidth: 420,
+              width: "90%",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 16 }}>
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 10,
+                  background: "rgba(239,68,68,0.1)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <Trash2 size={18} style={{ color: "#ef4444" }} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
+                  Xoá {selectedGroups.length} nhóm thiết bị
+                </div>
+                <div style={{ fontSize: 13, color: "var(--color-text-secondary)", lineHeight: 1.5 }}>
+                  Hành động này không thể hoàn tác. Tất cả{" "}
+                  <strong style={{ color: "var(--color-text-primary)" }}>
+                    {selectedGroups.length} nhóm
+                  </strong>{" "}
+                  đã chọn sẽ bị xoá vĩnh viễn.
+                </div>
+              </div>
+            </div>
+
+            {/* Preview list (max 5) */}
+            <div
+              style={{
+                background: "var(--color-surface-2)",
+                border: "1px solid var(--color-border)",
+                borderRadius: 8,
+                padding: "10px 12px",
+                marginBottom: 20,
+                maxHeight: 140,
+                overflowY: "auto",
+              }}
+            >
+              {selectedGroups.slice(0, 5).map((g) => (
+                <div
+                  key={g._id}
+                  style={{
+                    fontSize: 12,
+                    color: "var(--color-text-secondary)",
+                    padding: "3px 0",
+                    borderBottom: "1px solid var(--color-border)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 5,
+                      height: 5,
+                      borderRadius: "50%",
+                      background: "rgb(233,34,39)",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {g.fullPath}
+                  </span>
+                </div>
+              ))}
+              {selectedGroups.length > 5 && (
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "var(--color-text-muted)",
+                    paddingTop: 6,
+                    fontStyle: "italic",
+                  }}
+                >
+                  ...và {selectedGroups.length - 5} nhóm khác
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+              <button
+                onClick={() => setBulkDeleteOpen(false)}
+                disabled={isBulkDeleting}
+                className="btn-ghost"
+                style={{ height: 36, opacity: isBulkDeleting ? 0.5 : 1 }}
+              >
+                <X size={14} />
+                Huỷ
+              </button>
+              <button
+                onClick={handleBulkDelete}
+                disabled={isBulkDeleting}
+                style={{
+                  height: 36,
+                  padding: "0 18px",
+                  background: isBulkDeleting ? "#f87171" : "#ef4444",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: isBulkDeleting ? "not-allowed" : "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 7,
+                  transition: "background 0.15s",
+                }}
+              >
+                <Trash2 size={14} />
+                {isBulkDeleting
+                  ? `Đang xoá...`
+                  : `Xoá ${selectedGroups.length} nhóm`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

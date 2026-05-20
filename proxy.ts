@@ -11,6 +11,7 @@ export default function proxy(request: NextRequest) {
   const protectedRoutes = [
     "/dashboard",
     "/equipments",
+    "/equipment-groups",
     "/factories",
     "/workcenters",
     "/maintenance",
@@ -55,5 +56,6 @@ export const config = {
     "/maintenance/:path*",
     "/reports/:path*",
     "/settings/:path*",
+    "/equipment-groups/:path*",
   ],
 };

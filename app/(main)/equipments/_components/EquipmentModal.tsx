@@ -46,7 +46,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { CascadingGroupSelect } from "@/components/equipment-groups/cascading-group-select";
+import { CascadingGroupSelect } from "@/app/(main)/equipment-groups/_components/cascading-group-select";
 import { useEquipmentGroups } from "@/lib/equipment-groups/queries/use-equipment-groups";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  ⭐  MOCK DATA fallback while the API is not seeded yet         ║
@@ -111,7 +111,10 @@ export default function EquipmentModal({
   // Fetch equipment groups for the cascading select
   const { data: remoteGroups } = useEquipmentGroups();
   // ⭐ Fallback to mock data while API returns nothing; remove MOCK_EQUIPMENT_GROUPS once API is seeded
-  const equipmentGroups = remoteGroups && remoteGroups.length > 0 ? remoteGroups : MOCK_EQUIPMENT_GROUPS; // ⭐ simplify to: const equipmentGroups = remoteGroups ?? [];
+  const equipmentGroups =
+    remoteGroups && remoteGroups.length > 0
+      ? remoteGroups
+      : MOCK_EQUIPMENT_GROUPS; // ⭐ simplify to: const equipmentGroups = remoteGroups ?? [];
 
   // Current cascading-select value mirrored from RHF
   const groupValue = {
@@ -262,17 +265,28 @@ export default function EquipmentModal({
                     groups={equipmentGroups}
                     value={groupValue}
                     onChange={(sel) => {
-                      form.setValue("equipmentGroup.level1", sel.level1, { shouldValidate: true });
-                      form.setValue("equipmentGroup.level2", sel.level2, { shouldValidate: true });
-                      form.setValue("equipmentGroup.level3", sel.level3, { shouldValidate: true });
-                      form.setValue("equipmentGroup.level4", sel.level4, { shouldValidate: true });
+                      form.setValue("equipmentGroup.level1", sel.level1, {
+                        shouldValidate: true,
+                      });
+                      form.setValue("equipmentGroup.level2", sel.level2, {
+                        shouldValidate: true,
+                      });
+                      form.setValue("equipmentGroup.level3", sel.level3, {
+                        shouldValidate: true,
+                      });
+                      form.setValue("equipmentGroup.level4", sel.level4, {
+                        shouldValidate: true,
+                      });
                     }}
                     disabled={isSubmitting}
                   />
                   {equipmentGroups.length === 0 && (
                     <p className="text-xs text-muted-foreground mt-2">
                       Chưa có nhóm thiết bị nào. Hãy tạo nhóm tại trang{" "}
-                      <a href="/equipment-groups" className="underline text-primary">
+                      <a
+                        href="/equipment-groups"
+                        className="underline text-primary"
+                      >
                         Nhóm thiết bị
                       </a>{" "}
                       trước.
