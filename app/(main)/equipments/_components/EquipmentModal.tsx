@@ -7,7 +7,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-// Utility to debounce a function
 
 import {
   useForm,
@@ -47,6 +46,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { CascadingGroupSelect } from "@/components/equipment-groups/cascading-group-select";
+import { useEquipmentGroups } from "@/lib/equipment-groups/queries/use-equipment-groups";
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  ⭐  MOCK DATA fallback while the API is not seeded yet         ║
+// ║  REMOVE the next two lines once /api/equipment-groups has data  ║
+// ╚══════════════════════════════════════════════════════════════════╝
+import { MOCK_EQUIPMENT_GROUPS } from "@/lib/equipment-groups/mock-data"; // ⭐ DELETE when API ready
 
 interface EquipmentModalProps {
   open: boolean;
@@ -101,6 +107,19 @@ export default function EquipmentModal({
   const { isSubmitting, errors, isValid } = useFormState({
     control: form.control,
   });
+
+  // Fetch equipment groups for the cascading select
+  const { data: remoteGroups } = useEquipmentGroups();
+  // ⭐ Fallback to mock data while API returns nothing; remove MOCK_EQUIPMENT_GROUPS once API is seeded
+  const equipmentGroups = remoteGroups && remoteGroups.length > 0 ? remoteGroups : MOCK_EQUIPMENT_GROUPS; // ⭐ simplify to: const equipmentGroups = remoteGroups ?? [];
+
+  // Current cascading-select value mirrored from RHF
+  const groupValue = {
+    level1: form.watch("equipmentGroup.level1") ?? "",
+    level2: form.watch("equipmentGroup.level2") ?? "",
+    level3: form.watch("equipmentGroup.level3") ?? "",
+    level4: form.watch("equipmentGroup.level4") ?? "",
+  };
 
   useEffect(() => {
     if (open) {
@@ -238,29 +257,28 @@ export default function EquipmentModal({
               </div>
 
               <FormSection title="Nhóm MMTB">
-                {(
-                  [
-                    ["level1", "Nhóm Thiết bị"],
-                    ["level2", "Loại Thiết bị"],
-                    ["level3", "Cấu hình"],
-                    ["level4", "Công suất"],
-                  ] as const
-                ).map(([name, label]) => (
-                  <FormField
-                    key={name}
-                    control={form.control}
-                    name={`equipmentGroup.${name}`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{label}</FormLabel>
-                        <FormControl>
-                          <Input autoComplete="off" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                <div className="sm:col-span-2">
+                  <CascadingGroupSelect
+                    groups={equipmentGroups}
+                    value={groupValue}
+                    onChange={(sel) => {
+                      form.setValue("equipmentGroup.level1", sel.level1, { shouldValidate: true });
+                      form.setValue("equipmentGroup.level2", sel.level2, { shouldValidate: true });
+                      form.setValue("equipmentGroup.level3", sel.level3, { shouldValidate: true });
+                      form.setValue("equipmentGroup.level4", sel.level4, { shouldValidate: true });
+                    }}
+                    disabled={isSubmitting}
                   />
-                ))}
+                  {equipmentGroups.length === 0 && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Chưa có nhóm thiết bị nào. Hãy tạo nhóm tại trang{" "}
+                      <a href="/equipment-groups" className="underline text-primary">
+                        Nhóm thiết bị
+                      </a>{" "}
+                      trước.
+                    </p>
+                  )}
+                </div>
               </FormSection>
 
               <FormSection title="THÔNG TIN TỔ CHỨC">

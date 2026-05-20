@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   Cpu,
   Factory,
+  Layers,
   GitBranch,
   Wrench,
   BarChart3,
@@ -20,6 +21,7 @@ import { useSidebarStore } from "@/lib/store/useSidebarStore";
 const navItems = [
   { href: "dashboard", label: "Bảng thống kê", icon: LayoutDashboard },
   { href: "equipments", label: "Danh sách thiết bị", icon: Cpu },
+  { href: "equipment-groups", label: "Nhóm thiết bị", icon: Layers },
   { href: "factories", label: "Quản lý nhà máy", icon: Factory },
 ];
 
