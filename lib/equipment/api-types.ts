@@ -13,6 +13,14 @@ export type CreateEquipmentResponse =
   | CreateEquipmentSuccessResponse
   | ApiErrorResponse;
 
+export interface UpdateEquipmentSuccessResponse {
+  data: Equipment;
+}
+
+export type UpdateEquipmentResponse =
+  | UpdateEquipmentSuccessResponse
+  | ApiErrorResponse;
+
 export interface DeleteEquipmentSuccessResponse {
   deletedCount: number;
 }

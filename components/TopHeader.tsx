@@ -18,7 +18,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Bảng thống kê thiết bị",
   "/equipments": "Danh sách thiết bị",
   "/factories": "Quản lý nhà máy",
-  "/workcenters": "Work Centers",
+  "/equipment-groups": "Quản lý nhóm thiết bị",
   "/maintenance": "Maintenance Schedule",
   "/reports": "Reports & Analytics",
   "/import": "Import Excel",
