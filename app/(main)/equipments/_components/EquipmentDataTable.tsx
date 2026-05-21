@@ -19,25 +19,25 @@ const STATUS_CFG: Record<
   { label: string; color: string; bg: string; border: string }
 > = {
   active: {
-    label: "Active",
+    label: "Hoạt động",
     color: "#059669",
     bg: "rgba(16,185,129,0.08)",
     border: "rgba(16,185,129,0.25)",
   },
   "pending-investment": {
-    label: "Maintenance",
+    label: "Dự kiến đầu tư",
     color: "#d97706",
     bg: "rgba(245,158,11,0.08)",
     border: "rgba(245,158,11,0.25)",
   },
   sold: {
-    label: "Inspection",
+    label: "Đã thanh lý",
     color: "#2563eb",
     bg: "rgba(59,130,246,0.08)",
     border: "rgba(59,130,246,0.25)",
   },
   inactive: {
-    label: "Inactive",
+    label: "Ngưng sử dụng",
     color: "#6b7280",
     bg: "rgba(107,114,128,0.08)",
     border: "rgba(107,114,128,0.25)",
@@ -444,8 +444,8 @@ export default function EquipmentDataTable({
               />
               <CustomTblRow
                 col="produceYear"
-                label="Năm sản xuất"
-                width={70}
+                label="Năm SX"
+                width={40}
                 handleSort={handleSort}
                 sortDir={sortDir}
                 sortKey={sortKey}

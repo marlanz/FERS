@@ -1,7 +1,13 @@
 "use client";
 
 import React from "react";
-import { Cpu, CheckCircle2, Wrench, Search, AlertTriangle } from "lucide-react";
+import {
+  Cpu,
+  CheckCircle2,
+  Search,
+  AlertTriangle,
+  HandCoins,
+} from "lucide-react";
 import type { Equipment } from "@/types/equipment";
 
 interface EquipmentKpiRowProps {
@@ -18,15 +24,15 @@ const STATUSES = [
     Icon: CheckCircle2,
   },
   {
-    key: "maintenance",
-    label: "Đang bảo trì",
+    key: "pending-investment",
+    label: "Dự kiến đầu tư ",
     color: "#f59e0b",
     bg: "rgba(245,158,11,0.08)",
     border: "rgba(245,158,11,0.2)",
-    Icon: Wrench,
+    Icon: HandCoins,
   },
   {
-    key: "inspection",
+    key: "sold",
     label: "Đã thanh lý",
     color: "#3b82f6",
     bg: "rgba(59,130,246,0.08)",
@@ -46,8 +52,9 @@ const STATUSES = [
 export default function EquipmentKpiRow({ data }: EquipmentKpiRowProps) {
   const counts = {
     active: data.filter((d) => (d.status ?? "active") === "active").length,
-    maintenance: data.filter((d) => d.status === "sold").length,
-    inspection: data.filter((d) => d.status === "pending-investment").length,
+    "pending-investment": data.filter((d) => d.status === "pending-investment")
+      .length,
+    sold: data.filter((d) => d.status === "sold").length,
     inactive: data.filter((d) => d.status === "inactive").length,
   };
   const total = data.length;
@@ -148,8 +155,11 @@ export default function EquipmentKpiRow({ data }: EquipmentKpiRowProps) {
 
       {/* Status cards */}
       {STATUSES.map((s) => {
-        const count = counts[s.key as keyof typeof counts];
-        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+        const eqStatusCount = data.filter((d) => d.status === s.key).length;
+        const pct = (eqStatusCount / total) * 100;
+        const displayPct = pct.toFixed(1);
+        // console.log(`${s.key}: `, eqStatusCount, total, pct);
+
         return (
           <div
             key={s.key}
@@ -189,7 +199,7 @@ export default function EquipmentKpiRow({ data }: EquipmentKpiRowProps) {
                   lineHeight: 1,
                 }}
               >
-                {count}
+                {eqStatusCount}
               </div>
               <div
                 style={{
@@ -216,7 +226,7 @@ export default function EquipmentKpiRow({ data }: EquipmentKpiRowProps) {
                 flexShrink: 0,
               }}
             >
-              {pct}%
+              {displayPct}%
             </div>
           </div>
         );

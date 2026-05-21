@@ -17,6 +17,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useSidebarStore } from "@/lib/store/useSidebarStore";
+import Image from "next/image";
 
 const navItems = [
   { href: "dashboard", label: "Bảng thống kê", icon: LayoutDashboard },
@@ -47,49 +48,56 @@ export default function Sidebar() {
       {/* Logo */}
       <div
         style={{
-          height: "56px",
+          minHeight: "72px",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
-          padding: collapsed ? "0 20px" : "0 16px",
+          justifyContent: "center",
+          padding: collapsed ? "8px 5px 8px 5px" : "12px 16px 8px 16px",
           borderBottom: "1px solid var(--color-border)",
-          gap: "10px",
+          gap: "4px",
+          boxSizing: "border-box",
+          overflow: "hidden",
         }}
       >
         <div
           style={{
-            width: "30px",
-            height: "30px",
-            background: "rgb(233,34,39)",
-            borderRadius: "8px",
+            width: collapsed ? "60px" : "100px",
+            height: collapsed ? "20px" : "48px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            flexShrink: 0,
+            overflow: "hidden",
           }}
         >
-          <Zap size={16} color="white" strokeWidth={2.5} />
+          <Image
+            src={"/logo-01.png"}
+            alt="logo"
+            width={collapsed ? 60 : 100}
+            height={collapsed ? 20 : 40}
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain",
+            }}
+          />
         </div>
-
         {!collapsed && (
-          <div>
-            <div
-              style={{
-                fontWeight: 700,
-                fontSize: "15px",
-                color: "var(--color-text-primary)",
-              }}
-            >
-              EMS Pro
-            </div>
-
-            <div
-              style={{
-                fontSize: "11px",
-                color: "var(--color-text-muted)",
-              }}
-            >
-              v2.4.1
-            </div>
+          <div
+            style={{
+              fontWeight: 700,
+              fontSize: "14px",
+              color: "var(--color-text-primary)",
+              textAlign: "center",
+              marginTop: "2px",
+              lineHeight: 1.2,
+              padding: "5px 2px",
+              wordBreak: "break-word",
+              width: "100%",
+              boxSizing: "border-box",
+            }}
+          >
+            Hệ thống Quản lí thiết bị Cơ khí
           </div>
         )}
       </div>
