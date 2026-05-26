@@ -1,12 +1,19 @@
-"use client";
-
-import { useState } from "react";
 import { Download, Sun, Moon, ChevronDown, LogOut } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 import Image from "next/image";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { authClient } from "@/lib/auth-client";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { Button } from "./ui/button";
 
 interface TopHeaderProps {
   darkMode?: boolean;
@@ -26,8 +33,6 @@ const PAGE_TITLES: Record<string, string> = {
 };
 
 export default function TopHeader({ darkMode, onToggleDark }: TopHeaderProps) {
-  // Removed unused notifOpen state
-  const [menuOpen, setMenuOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
   const clearUser = useAuthStore((state) => state.clearUser);
   const path = usePathname();
@@ -111,107 +116,52 @@ export default function TopHeader({ darkMode, onToggleDark }: TopHeaderProps) {
         </button>
       </div> */}
 
-      {/* User avatar */}
-      <button
-        className="btn-ghost"
-        style={{ height: "34px", padding: "0 10px", gap: "8px" }}
-        onClick={() => setMenuOpen(!menuOpen)}
-      >
-        {avatar && (
-          <Image
-            src={avatar}
-            alt={user.name || "User avatar"}
-            width={26}
-            height={26}
-            className="rounded-full shrink-0"
-          />
-        )}
-        <span style={{ fontSize: "13px", fontWeight: 500 }}>
-          {user?.name ?? user?.email}
-        </span>
-        <ChevronDown size={13} />
-      </button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild className="py-4">
+          <Button variant="outline" className="bg-white gap-3">
+            <div className="flex items-center gap-2">
+              {avatar && (
+                <Image
+                  src={avatar}
+                  alt={user.name || "User avatar"}
+                  width={26}
+                  height={26}
+                  className="rounded-full shrink-0"
+                />
+              )}
 
-      {menuOpen && (
-        <div
-          style={{
-            position: "absolute",
-            top: "calc(100% + 8px)",
-            right: 0,
-            width: "150px",
-            background: "var(--color-surface)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "12px",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-            zIndex: 500,
-            overflow: "hidden",
-          }}
-        >
-          {/* <div
-            style={{
-              padding: "12px 16px",
-              borderBottom: "1px solid var(--color-border)",
-              fontWeight: 600,
-              fontSize: "14px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <span>Notifications</span>
-            <span
-              style={{
-                fontSize: "11px",
-                fontWeight: 500,
-                color: "rgb(233,34,39)",
-              }}
-            >
-              3 new
-            </span> */}
-          {/* </div> */}
-
-          <div
-            style={{
-              padding: "12px 16px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "2px",
-              cursor: "pointer",
-              transition: "background 0.1s",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "var(--color-surface-2)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "transparent")
-            }
-            onClick={async () => {
-              await authClient.signOut();
-              clearUser();
-              router.push("/login");
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                gap: 8,
-                alignItems: "center",
-              }}
-            >
-              <LogOut size={14} color="rgb(233,34,39)" strokeWidth={2.5} />
-              <span
-                style={{
-                  fontWeight: 600,
-                  fontSize: "13px",
-                  color: "rgb(233,34,39)",
-                }}
-              >
-                Đăng xuất
+              <span style={{ fontSize: "13px", fontWeight: 500 }}>
+                {user?.name ?? user?.email}
               </span>
             </div>
-          </div>
-        </div>
-      )}
+            <ChevronDown />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Email</DropdownMenuLabel>
+            <DropdownMenuItem>{user?.email}</DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Chức vụ tài khoản</DropdownMenuLabel>
+            <DropdownMenuItem>Admin</DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={async () => {
+                await authClient.signOut();
+                clearUser();
+                router.push("/login");
+              }}
+            >
+              <LogOut />
+              Đăng xuất
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </header>
   );
 }

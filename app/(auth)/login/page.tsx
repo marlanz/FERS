@@ -54,8 +54,8 @@ export default function LoginPage() {
         <div className="flex flex-col justify-center">
           <div className="w-full max-w-md mx-auto lg:mx-0">
             {/* Header */}
-            <div className="mb-8">
-              <div className="">
+            <div className="mb-5">
+              <div className="flex items-center justify-center">
                 {/* Industrial Icon Cluster */}
                 <div className="inline-flex items-center justify-center ">
                   <Image
@@ -68,17 +68,17 @@ export default function LoginPage() {
               </div>
 
               <h2
-                className="text-3xl font-bold text-foreground mb-3"
+                className="text-3xl font-bold text-foreground mb-3 text-center"
                 style={{ paddingTop: 16 }}
               >
-                Hệ thống Quản lý Thiết bị Công Nghệ
+                Hệ thống Quản lý Thiết bị Công Nghệ Tập đoàn Đại Dũng
               </h2>
               <p
-                className="text-muted-foreground text-lg leading-relaxed mb-8"
-                style={{ paddingBottom: 16 }}
+                className="text-muted-foreground text-lg leading-relaxed mb-8 text-center"
+                style={{ paddingBottom: 4 }}
               >
-                Quản lý, giám sát thiết bị theo thời gian thực, phân tích và
-                cảnh báo thông minh
+                Quản lý, giám sát thiết bị theo thời gian thực, phân tích báo
+                cáo và cảnh báo thông minh
               </p>
             </div>
 
@@ -114,7 +114,7 @@ export default function LoginPage() {
                   style={{ color: "rgb(233, 34, 39)", fontWeight: 500 }}
                   target="_blank"
                 >
-                  Chính sách bảo mật dữ liệu
+                  Chính sách bảo mật dữ liệu{" "}
                 </Link>
                 của Đại Dũng
               </div>
