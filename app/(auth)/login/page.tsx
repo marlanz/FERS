@@ -1,35 +1,14 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { Mail, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import LoginButton from "./_component/login-button";
 import Link from "next/link";
 
 export default function LoginPage() {
-  // const [email, setEmail] = useState("");
-  // const [password, setPassword] = useState("");
-  // const [rememberMe, setRememberMe] = useState(false);
-  // const [isLoading, setIsLoading] = useState(false);
-
-  // const handleLogin = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setIsLoading(true);
-  //   // Simulate login
-  //   setTimeout(() => setIsLoading(false), 1000);
-  // };
-
-  // const handleOAuth = (provider: string) => {
-  //   console.log(`Login with ${provider}`);
-  // };
-
   return (
     <div className="min-h-screen bg-background flex items-center justify-center ">
       {/* Main Container */}
       <div
-        className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12"
+        className=" grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12"
         style={{
           background: "#fff",
           borderRadius: 18,
