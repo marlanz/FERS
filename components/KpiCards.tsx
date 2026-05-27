@@ -154,7 +154,7 @@ function KpiCard({
             {trend}%
           </span>
           <span style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>
-            vs last month
+            so với tháng trước
           </span>
         </div>
         <div style={{ width: "80px", height: "32px" }}>
@@ -209,7 +209,7 @@ export default function KpiCards({
         icon={<Factory size={20} />}
       />
       <KpiCard
-        title="Work Centers"
+        title="Số lượng xưởng"
         value={totalWorkCenters}
         subtitle="Xưởng hoạt động"
         trend={5.1}
@@ -217,7 +217,7 @@ export default function KpiCards({
         icon={<GitBranch size={20} />}
       />
       <KpiCard
-        title="Active Equipment"
+        title="Thiết bị hoạt động"
         value={activeEquipment}
         subtitle={`${Math.round((activeEquipment / totalEquipment) * 100)}% Số thiết bị hoạt động`}
         trend={3.4}

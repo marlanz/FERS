@@ -101,7 +101,7 @@ export default function EquipmentModal({
   const form = useForm<EquipmentFormValues>({
     resolver: zodResolver(EquipmentSchema),
     defaultValues: equipmentFormDefaultValues,
-    mode: "onBlur",
+    mode: "onSubmit",
   });
 
   const { isSubmitting, errors, isValid } = useFormState({

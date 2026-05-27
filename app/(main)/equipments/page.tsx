@@ -1,4 +1,3 @@
-import { getAllEquipments } from "@/lib/data/equipments";
 import { EquipmentPageInner } from "./_components/EquipmentWrapper";
 import { Metadata } from "next";
 

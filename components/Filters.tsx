@@ -38,7 +38,8 @@ function MultiSelect({
 
   useEffect(() => {
     function handle(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     }
     document.addEventListener("mousedown", handle);
     return () => document.removeEventListener("mousedown", handle);
@@ -69,7 +70,9 @@ function MultiSelect({
           height: "34px",
           border: `1px solid ${isActive ? "rgb(233,34,39)" : "var(--color-border)"}`,
           borderRadius: "8px",
-          background: isActive ? "rgba(233,34,39,0.05)" : "var(--color-surface)",
+          background: isActive
+            ? "rgba(233,34,39,0.05)"
+            : "var(--color-surface)",
           color: isActive ? "rgb(233,34,39)" : "var(--color-text-secondary)",
           fontSize: "13px",
           fontWeight: 500,
@@ -100,7 +103,10 @@ function MultiSelect({
         </span>
         <ChevronDown
           size={13}
-          style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s" }}
+          style={{
+            transform: open ? "rotate(180deg)" : "rotate(0)",
+            transition: "transform 0.2s",
+          }}
         />
       </button>
 
@@ -134,8 +140,12 @@ function MultiSelect({
               color: "rgb(233,34,39)",
               transition: "background 0.1s",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(233,34,39,0.05)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = "rgba(233,34,39,0.05)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "transparent")
+            }
           >
             <div
               style={{
@@ -150,7 +160,13 @@ function MultiSelect({
                 justifyContent: "center",
               }}
             >
-              {allSelected && <span style={{ color: "white", fontSize: "9px", fontWeight: 800 }}>✓</span>}
+              {allSelected && (
+                <span
+                  style={{ color: "white", fontSize: "9px", fontWeight: 800 }}
+                >
+                  ✓
+                </span>
+              )}
             </div>
             Select All
           </div>
@@ -171,8 +187,13 @@ function MultiSelect({
                     color: "var(--color-text-primary)",
                     transition: "background 0.1s",
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-surface-2)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background =
+                      "var(--color-surface-2)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "transparent")
+                  }
                 >
                   <div
                     style={{
@@ -188,9 +209,27 @@ function MultiSelect({
                       transition: "all 0.15s",
                     }}
                   >
-                    {checked && <span style={{ color: "white", fontSize: "9px", fontWeight: 800 }}>✓</span>}
+                    {checked && (
+                      <span
+                        style={{
+                          color: "white",
+                          fontSize: "9px",
+                          fontWeight: 800,
+                        }}
+                      >
+                        ✓
+                      </span>
+                    )}
                   </div>
-                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{opt}</span>
+                  <span
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {opt}
+                  </span>
                 </div>
               );
             })}
@@ -201,7 +240,14 @@ function MultiSelect({
   );
 }
 
-export default function Filters({ factories, groups, workCenters, produceYears, filters, onFiltersChange }: FiltersProps) {
+export default function Filters({
+  factories,
+  groups,
+  workCenters,
+  produceYears,
+  filters,
+  onFiltersChange,
+}: FiltersProps) {
   const years = produceYears.map(String);
   const statuses = ["active", "maintenance", "inactive", "inspection"];
 
@@ -212,7 +258,14 @@ export default function Filters({ factories, groups, workCenters, produceYears, 
     filters.produceYears.length > 0 ||
     filters.statuses.length > 0;
 
-  const reset = () => onFiltersChange({ factories: [], groups: [], workCenters: [], produceYears: [], statuses: [] });
+  const reset = () =>
+    onFiltersChange({
+      factories: [],
+      groups: [],
+      workCenters: [],
+      produceYears: [],
+      statuses: [],
+    });
 
   return (
     <div
@@ -227,39 +280,54 @@ export default function Filters({ factories, groups, workCenters, produceYears, 
         flexWrap: "wrap",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--color-text-secondary)", flexShrink: 0 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+          color: "var(--color-text-secondary)",
+          flexShrink: 0,
+        }}
+      >
         <Filter size={15} />
-        <span style={{ fontSize: "13px", fontWeight: 600 }}>Filters</span>
+        <span style={{ fontSize: "13px", fontWeight: 600 }}>Bộ lọc</span>
       </div>
 
-      <div style={{ width: "1px", height: "20px", background: "var(--color-border)", flexShrink: 0 }} />
+      <div
+        style={{
+          width: "1px",
+          height: "20px",
+          background: "var(--color-border)",
+          flexShrink: 0,
+        }}
+      />
 
       <MultiSelect
-        label="Factory"
+        label="Nhà máy"
         options={factories}
         selected={filters.factories}
         onChange={(v) => onFiltersChange({ ...filters, factories: v })}
       />
       <MultiSelect
-        label="Equipment Group"
+        label="Nhóm thiết bị"
         options={groups}
         selected={filters.groups}
         onChange={(v) => onFiltersChange({ ...filters, groups: v })}
       />
       <MultiSelect
-        label="Work Center"
+        label="Xưởng"
         options={workCenters}
         selected={filters.workCenters}
         onChange={(v) => onFiltersChange({ ...filters, workCenters: v })}
       />
       <MultiSelect
-        label="Produce Year"
+        label="Năm sản xuất"
         options={years}
         selected={filters.produceYears}
         onChange={(v) => onFiltersChange({ ...filters, produceYears: v })}
       />
       <MultiSelect
-        label="Status"
+        label="Trạng thái"
         options={statuses}
         selected={filters.statuses}
         onChange={(v) => onFiltersChange({ ...filters, statuses: v })}

@@ -24,6 +24,7 @@ const navItems = [
   { href: "equipments", label: "Danh sách thiết bị", icon: Cpu },
   { href: "equipment-groups", label: "Nhóm thiết bị", icon: Layers },
   { href: "factories", label: "Quản lý nhà máy", icon: Factory },
+  { href: "welding", label: "Quản lí thiết bị hàn", icon: Factory },
 ];
 
 export default function Sidebar() {

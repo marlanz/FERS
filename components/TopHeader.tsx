@@ -78,7 +78,7 @@ export default function TopHeader({ darkMode, onToggleDark }: TopHeaderProps) {
           style={{ height: "34px", fontSize: "13px" }}
         >
           <Download size={14} />
-          Export Report
+          Xuất file báo cáo
         </button>
       )}
 
