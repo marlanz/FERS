@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, X, RotateCcw, Filter } from "lucide-react";
+import { EquipmentStatus } from "@/types/equipment";
 
 export interface FilterState {
   factories: string[];
@@ -20,6 +21,8 @@ interface FiltersProps {
   onFiltersChange: (f: FilterState) => void;
 }
 
+type MultiSelectOption = { value: string; label: string } | string;
+
 function MultiSelect({
   label,
   options,
@@ -28,7 +31,7 @@ function MultiSelect({
   brandAccent,
 }: {
   label: string;
-  options: string[];
+  options: MultiSelectOption[];
   selected: string[];
   onChange: (v: string[]) => void;
   brandAccent?: boolean;
@@ -45,17 +48,21 @@ function MultiSelect({
     return () => document.removeEventListener("mousedown", handle);
   }, []);
 
-  const allSelected = selected.length === options.length;
+  const normalizedOptions = options.map((opt) =>
+    typeof opt === "string" ? { label: opt, value: opt } : opt,
+  );
+
+  const allSelected = selected.length === normalizedOptions.length;
   const isActive = selected.length > 0;
 
-  const toggle = (v: string) => {
-    if (selected.includes(v)) onChange(selected.filter((s) => s !== v));
-    else onChange([...selected, v]);
+  const toggle = (value: string) => {
+    if (selected.includes(value)) onChange(selected.filter((s) => s !== value));
+    else onChange([...selected, value]);
   };
 
   const toggleAll = () => {
     if (allSelected) onChange([]);
-    else onChange([...options]);
+    else onChange(normalizedOptions.map((opt) => opt.value));
   };
 
   return (
@@ -171,12 +178,12 @@ function MultiSelect({
             Select All
           </div>
           <div style={{ maxHeight: "200px", overflowY: "auto" }}>
-            {options.map((opt) => {
-              const checked = selected.includes(opt);
+            {normalizedOptions.map((opt) => {
+              const checked = selected.includes(opt.value);
               return (
                 <div
-                  key={opt}
-                  onClick={() => toggle(opt)}
+                  key={opt.value}
+                  onClick={() => toggle(opt.value)}
                   style={{
                     padding: "7px 12px",
                     display: "flex",
@@ -228,7 +235,7 @@ function MultiSelect({
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {opt}
+                    {opt.label}
                   </span>
                 </div>
               );
@@ -249,7 +256,12 @@ export default function Filters({
   onFiltersChange,
 }: FiltersProps) {
   const years = produceYears.map(String);
-  const statuses = ["active", "maintenance", "inactive", "inspection"];
+  const statuses: { key: EquipmentStatus; translate: string }[] = [
+    { key: "active", translate: "Đang hoạt động" },
+    { key: "inactive", translate: "Ngưng hoạt động" },
+    { key: "sold", translate: "Đã thanh lí" },
+    { key: "pending-investment", translate: "Dự kiến đầu tư" },
+  ];
 
   const hasFilters =
     filters.factories.length > 0 ||
@@ -328,7 +340,7 @@ export default function Filters({
       />
       <MultiSelect
         label="Trạng thái"
-        options={statuses}
+        options={statuses.map((s) => ({ label: s.translate, value: s.key }))}
         selected={filters.statuses}
         onChange={(v) => onFiltersChange({ ...filters, statuses: v })}
       />

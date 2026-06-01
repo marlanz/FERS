@@ -99,14 +99,14 @@ export default function DashboardContent({
     const activeEquipment = filtered.filter(
       (d) => (d.status || "active") === "active",
     ).length;
-    const maintenanceDue = filtered.filter(
-      (d) => d.status === "maintenance" || d.status === "inspection",
+    const pendingInvestment = filtered.filter(
+      (d) => d.status === "pending-investment",
     ).length;
     return {
       totalFactories,
       totalWorkCenters,
       activeEquipment,
-      maintenanceDue,
+      pendingInvestment,
     };
   }, [filtered]);
 
@@ -126,14 +126,14 @@ export default function DashboardContent({
       Active: 0,
       Maintenance: 0,
       Inactive: 0,
-      Inspection: 0,
+      "pending-investment": 0,
     };
     filtered.forEach((d) => {
       const s = d.status || "active";
       if (s === "active") map.Active++;
       else if (s === "maintenance") map.Maintenance++;
       else if (s === "inactive") map.Inactive++;
-      else if (s === "inspection") map.Inspection++;
+      else if (s === "pending-investment") map["pending-investment"]++;
     });
     return Object.entries(map)
       .filter(([, v]) => v > 0)
@@ -197,18 +197,18 @@ export default function DashboardContent({
         totalFactories={kpi.totalFactories}
         totalWorkCenters={kpi.totalWorkCenters}
         activeEquipment={kpi.activeEquipment}
-        maintenanceDue={kpi.maintenanceDue}
+        pendingInvestment={kpi.pendingInvestment}
       />
 
       {/* Filters */}
-      <Filters
+      {/* <Filters
         factories={factories}
         groups={groups}
         workCenters={workCenters}
         produceYears={produceYears}
         filters={filters}
         onFiltersChange={setFilters}
-      />
+      /> */}
 
       {/* Charts Row 1 */}
       <div

@@ -594,7 +594,9 @@ export default function EquipmentDataTable({
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {row.equipmentCode}
+                        {row.equipmentCode === ""
+                          ? "DỰ KIẾN ĐẦU TƯ"
+                          : row.equipmentCode}
                       </span>
                     </td>
                     <td
@@ -681,7 +683,9 @@ export default function EquipmentDataTable({
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {row.manufacturer.brand}
+                      {row.manufacturer.brand === ""
+                        ? "-"
+                        : row.manufacturer.brand}
                     </td>
                     <td
                       style={{
@@ -703,7 +707,9 @@ export default function EquipmentDataTable({
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {row.manufacturer.produceYear}
+                      {row.manufacturer.produceYear === 0
+                        ? "-"
+                        : row.manufacturer.produceYear}
                     </td>
                     <td
                       style={{

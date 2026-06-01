@@ -7,6 +7,7 @@ import {
   GitBranch,
   CheckCircle2,
   AlertTriangle,
+  HandCoins,
 } from "lucide-react";
 import { SparklineChart } from "./SparklineChart";
 
@@ -173,7 +174,7 @@ interface KpiCardsProps {
   totalFactories: number;
   totalWorkCenters: number;
   activeEquipment: number;
-  maintenanceDue: number;
+  pendingInvestment: number;
 }
 
 export default function KpiCards({
@@ -181,7 +182,7 @@ export default function KpiCards({
   totalFactories,
   totalWorkCenters,
   activeEquipment,
-  maintenanceDue,
+  pendingInvestment,
 }: KpiCardsProps) {
   return (
     <div
@@ -225,12 +226,12 @@ export default function KpiCards({
         icon={<CheckCircle2 size={20} />}
       />
       <KpiCard
-        title="Maintenance Due"
-        value={maintenanceDue}
-        subtitle="Thiết bị cần bảo trì"
+        title="Dự kiến đầu tư"
+        value={pendingInvestment}
+        subtitle="Số thiết bị đầu tư"
         trend={-12.5}
-        sparkData={[6, 5, 7, 6, 5, 4, 3, maintenanceDue]}
-        icon={<AlertTriangle size={20} />}
+        sparkData={[6, 5, 7, 6, 5, 4, 3, pendingInvestment]}
+        icon={<HandCoins size={20} />}
       />
     </div>
   );

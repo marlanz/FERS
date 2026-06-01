@@ -1,5 +1,6 @@
 export type EquipmentStatus =
   | "active"
+  | "maintenance"
   | "inactive"
   | "sold"
   | "pending-investment";
