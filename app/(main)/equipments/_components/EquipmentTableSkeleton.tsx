@@ -1,6 +1,6 @@
 const HEADER_WIDTHS = [14, 30, 110, 200, 110, 90, 160, 120, 100, 70, 120] as const;
 
-const ROW_CELL_WIDTHS = [
+const ROW_CELL_WIDTHS: { w: number; flex: number | false; pill?: boolean }[] = [
   { w: 14, flex: false },
   { w: 30, flex: false },
   { w: 110, flex: false },
@@ -12,7 +12,7 @@ const ROW_CELL_WIDTHS = [
   { w: 100, flex: false },
   { w: 50, flex: false },
   { w: 70, flex: false, pill: true },
-] as const;
+];
 
 interface EquipmentTableSkeletonProps {
   rowCount?: number;

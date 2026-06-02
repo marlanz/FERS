@@ -11,14 +11,8 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import type { Equipment, EquipmentStatus } from "@/types/equipment";
+import StatusBadge from "@/components/equipment/StatusBadge";
 
-const STATUS_MAP: Record<EquipmentStatus, { label: string; cls: string }> = {
-  active: { label: "Hoạt động", cls: "badge-active" },
-  maintenance: { label: "Đang bảo trì", cls: "badge-maintenance" },
-  inactive: { label: "Đã thanh lý", cls: "badge-inactive" },
-  sold: { label: "Inspection", cls: "badge-inspection" },
-  "pending-investment": { label: "Đầu tư", cls: "hand-coins" },
-};
 
 type SortKey =
   | keyof Equipment
@@ -136,12 +130,8 @@ const COLUMNS: ColDef[] = [
   {
     key: "status",
     label: "Status",
-    width: 120,
-    render: (r) => {
-      const s = r.status || "active";
-      const info = STATUS_MAP[s];
-      return <span className={`badge ${info.cls}`}>{info.label}</span>;
-    },
+    width: 140,
+    render: (r) => <StatusBadge status={r.status || "active"} />,
   },
 ];
 

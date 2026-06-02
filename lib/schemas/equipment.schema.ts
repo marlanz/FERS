@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { EQUIPMENT_STATUSES } from "@/lib/constants/equipment-status";
 
 /** Client form schema — only fields exposed in the create modal. */
 /** Form + client validation schema (react-hook-form / zodResolver). */
@@ -47,12 +48,10 @@ export const equipmentFormDefaultValues: EquipmentFormValues = {
   note: "",
 };
 
-const equipmentStatusSchema = z.enum([
-  "active",
-  "maintenance",
-  "inactive",
-  "inspection",
-]);
+// Derived from the centralized config — never maintain this list manually.
+const equipmentStatusSchema = z.enum(
+  Object.keys(EQUIPMENT_STATUSES) as [string, ...string[]],
+);
 
 /**
  * Server schema — validates API input and normalizes to the MongoDB document shape.

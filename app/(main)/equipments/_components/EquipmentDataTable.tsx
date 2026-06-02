@@ -11,38 +11,11 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-import type { Equipment, EquipmentStatus } from "@/types/equipment";
+import type { Equipment } from "@/types/equipment";
 import { getEquipmentDocumentId } from "@/lib/equipment/equipmentRowId";
+import { getStatusMeta } from "@/lib/constants/equipment-status";
+import StatusBadge from "@/components/equipment/StatusBadge";
 
-const STATUS_CFG: Record<
-  EquipmentStatus,
-  { label: string; color: string; bg: string; border: string }
-> = {
-  active: {
-    label: "Hoạt động",
-    color: "#059669",
-    bg: "rgba(16,185,129,0.08)",
-    border: "rgba(16,185,129,0.25)",
-  },
-  "pending-investment": {
-    label: "Dự kiến đầu tư",
-    color: "#d97706",
-    bg: "rgba(245,158,11,0.08)",
-    border: "rgba(245,158,11,0.25)",
-  },
-  sold: {
-    label: "Đã thanh lý",
-    color: "#2563eb",
-    bg: "rgba(59,130,246,0.08)",
-    border: "rgba(59,130,246,0.25)",
-  },
-  inactive: {
-    label: "Ngưng sử dụng",
-    color: "#6b7280",
-    bg: "rgba(107,114,128,0.08)",
-    border: "rgba(107,114,128,0.25)",
-  },
-};
 
 type SortKey =
   | "no"
@@ -528,7 +501,6 @@ export default function EquipmentDataTable({
                 const selected = rowId != null && selectedIds.has(rowId);
                 const hovered = rowId != null && hoveredRow === rowId;
                 const status = row.status ?? "active";
-                const sCfg = STATUS_CFG[status];
                 // Calculate display index for current row (1-based, continues across pages)
                 const displayIndex = (page - 1) * pageSize + idx + 1;
 
@@ -717,32 +689,7 @@ export default function EquipmentDataTable({
                         borderBottom: "1px solid var(--color-border)",
                       }}
                     >
-                      <span
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "4px",
-                          fontSize: "11px",
-                          fontWeight: 600,
-                          padding: "2px 8px",
-                          borderRadius: "9999px",
-                          background: sCfg.bg,
-                          color: sCfg.color,
-                          border: `1px solid ${sCfg.border}`,
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        <span
-                          style={{
-                            width: 6,
-                            height: 6,
-                            borderRadius: "50%",
-                            background: sCfg.color,
-                            flexShrink: 0,
-                          }}
-                        />
-                        {sCfg.label}
-                      </span>
+                      <StatusBadge status={status} />
                     </td>
                     <td
                       style={{

@@ -8,13 +8,10 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
   Cell,
-  LineChart,
-  Line,
   Legend,
 } from "recharts";
+
 
 const BRAND = "rgb(233,34,39)";
 const COLORS = [
@@ -27,13 +24,6 @@ const COLORS = [
   "#06b6d4",
   "#ec4899",
 ];
-
-const STATUS_COLORS: Record<string, string> = {
-  Active: "#10b981",
-  Maintenance: "#f59e0b",
-  Inactive: "#6b7280",
-  Inspection: "#3b82f6",
-};
 
 interface ChartCardProps {
   title: string;
@@ -193,54 +183,59 @@ export function EquipmentByFactoryChart({ data }: ByFactoryProps) {
   );
 }
 
-// Chart 2: Status Distribution (Donut)
+// Chart 2: Status Distribution (Vertical Bar)
 interface StatusProps {
-  data: { name: string; value: number }[];
+  /** Each entry: status key + count, pre-filtered to non-zero values */
+  data: { status: string; label: string; count: number; color: string }[];
 }
 export function StatusDistributionChart({ data }: StatusProps) {
-  const total = data.reduce((s, d) => s + d.value, 0);
   return (
     <ChartCard
       title="Thống kê trạng thái thiết bị"
       subtitle="Trạng thái thiết bị hiện tại"
     >
       <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            innerRadius={70}
-            outerRadius={100}
-            paddingAngle={3}
-            dataKey="value"
-            isAnimationActive
-            animationDuration={1000}
-          >
-            {data.map((entry, index) => (
-              <Cell
-                key={entry.name}
-                fill={STATUS_COLORS[entry.name] || COLORS[index]}
-                stroke="none"
-              />
-            ))}
-          </Pie>
-          <Tooltip content={<CustomTooltip />} />
-          <Legend
-            iconType="circle"
-            iconSize={8}
-            formatter={(value) => (
-              <span
-                style={{
-                  fontSize: "12px",
-                  color: "var(--color-text-secondary)",
-                }}
-              >
-                {value}
-              </span>
-            )}
+        <BarChart
+          data={data}
+          margin={{ top: 4, right: 16, left: -10, bottom: 24 }}
+        >
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="var(--color-border)"
+            vertical={false}
           />
-        </PieChart>
+          <XAxis
+            dataKey="label"
+            tick={{ fontSize: 11, fill: "var(--color-text-secondary)" }}
+            tickLine={false}
+            axisLine={false}
+            interval={0}
+            angle={-20}
+            textAnchor="end"
+          />
+          <YAxis
+            tick={{ fontSize: 12, fill: "var(--color-text-secondary)" }}
+            tickLine={false}
+            axisLine={false}
+            allowDecimals={false}
+          />
+          <Tooltip
+            content={<CustomTooltip />}
+            cursor={{ fill: "rgba(0,0,0,0.04)" }}
+          />
+          <Bar
+            dataKey="count"
+            name="Thiết bị"
+            radius={[4, 4, 0, 0]}
+            maxBarSize={56}
+            isAnimationActive
+            animationDuration={800}
+          >
+            {data.map((entry) => (
+              <Cell key={entry.status} fill={entry.color} />
+            ))}
+          </Bar>
+        </BarChart>
       </ResponsiveContainer>
     </ChartCard>
   );
@@ -381,59 +376,59 @@ export function WorkCenterChart({ data, factories }: WorkCenterProps) {
 }
 
 // Chart 5: Produce Year Trend
-interface YearProps {
-  data: { year: number; count: number }[];
-}
-export function ProduceYearChart({ data }: YearProps) {
-  return (
-    <ChartCard
-      title="Equipment by Produce Year"
-      subtitle="Fleet age distribution trend"
-    >
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={data}
-          margin={{ top: 4, right: 16, left: -10, bottom: 0 }}
-        >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="var(--color-border)"
-            vertical={false}
-          />
-          <XAxis
-            dataKey="year"
-            tick={{ fontSize: 12, fill: "var(--color-text-secondary)" }}
-            tickLine={false}
-            axisLine={false}
-          />
-          <YAxis
-            tick={{ fontSize: 12, fill: "var(--color-text-secondary)" }}
-            tickLine={false}
-            axisLine={false}
-            allowDecimals={false}
-          />
-          <Tooltip
-            content={<CustomTooltip />}
-            cursor={{ stroke: "var(--color-border)", strokeWidth: 1 }}
-          />
-          <Line
-            type="monotone"
-            dataKey="count"
-            name="Equipment"
-            stroke={BRAND}
-            strokeWidth={2.5}
-            dot={{
-              r: 4,
-              fill: BRAND,
-              stroke: "var(--color-surface)",
-              strokeWidth: 2,
-            }}
-            activeDot={{ r: 6, fill: BRAND }}
-            isAnimationActive
-            animationDuration={1000}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </ChartCard>
-  );
-}
+// interface YearProps {
+//   data: { year: number; count: number }[];
+// }
+// export function ProduceYearChart({ data }: YearProps) {
+//   return (
+//     <ChartCard
+//       title="Equipment by Produce Year"
+//       subtitle="Fleet age distribution trend"
+//     >
+//       <ResponsiveContainer width="100%" height="100%">
+//         <LineChart
+//           data={data}
+//           margin={{ top: 4, right: 16, left: -10, bottom: 0 }}
+//         >
+//           <CartesianGrid
+//             strokeDasharray="3 3"
+//             stroke="var(--color-border)"
+//             vertical={false}
+//           />
+//           <XAxis
+//             dataKey="year"
+//             tick={{ fontSize: 12, fill: "var(--color-text-secondary)" }}
+//             tickLine={false}
+//             axisLine={false}
+//           />
+//           <YAxis
+//             tick={{ fontSize: 12, fill: "var(--color-text-secondary)" }}
+//             tickLine={false}
+//             axisLine={false}
+//             allowDecimals={false}
+//           />
+//           <Tooltip
+//             content={<CustomTooltip />}
+//             cursor={{ stroke: "var(--color-border)", strokeWidth: 1 }}
+//           />
+//           <Line
+//             type="monotone"
+//             dataKey="count"
+//             name="Equipment"
+//             stroke={BRAND}
+//             strokeWidth={2.5}
+//             dot={{
+//               r: 4,
+//               fill: BRAND,
+//               stroke: "var(--color-surface)",
+//               strokeWidth: 2,
+//             }}
+//             activeDot={{ r: 6, fill: BRAND }}
+//             isAnimationActive
+//             animationDuration={1000}
+//           />
+//         </LineChart>
+//       </ResponsiveContainer>
+//     </ChartCard>
+//   );
+// }

@@ -13,28 +13,9 @@ import {
   Globe,
 } from "lucide-react";
 import type { Equipment } from "@/types/equipment";
+import { getStatusMeta } from "@/lib/constants/equipment-status";
+import StatusBadge from "@/components/equipment/StatusBadge";
 
-const STATUS_LABELS: Record<
-  string,
-  { label: string; color: string; bg: string }
-> = {
-  active: { label: "Active", color: "#059669", bg: "rgba(16,185,129,0.1)" },
-  "pending-investment": {
-    label: "Maintenance",
-    color: "#d97706",
-    bg: "rgba(245,158,11,0.1)",
-  },
-  inactive: {
-    label: "Inactive",
-    color: "#6b7280",
-    bg: "rgba(107,114,128,0.1)",
-  },
-  inspection: {
-    label: "Inspection",
-    color: "#2563eb",
-    bg: "rgba(59,130,246,0.1)",
-  },
-};
 
 function DetailRow({
   label,
@@ -125,7 +106,7 @@ export default function DetailDrawer({
 }: DetailDrawerProps) {
   if (!equipment) return null;
   const status = equipment.status || "active";
-  const statusInfo = STATUS_LABELS[status];
+  const statusMeta = getStatusMeta(status);
 
   return (
     <>
@@ -183,14 +164,14 @@ export default function DetailDrawer({
                 style={{
                   fontSize: "11px",
                   fontWeight: 600,
-                  background: statusInfo.bg,
-                  color: statusInfo.color,
+                  background: statusMeta.bg,
+                  color: statusMeta.color,
                   padding: "2px 8px",
                   borderRadius: "9999px",
-                  border: `1px solid ${statusInfo.color}30`,
+                  border: `1px solid ${statusMeta.color}30`,
                 }}
               >
-                {statusInfo.label}
+                {statusMeta.translate}
               </span>
               <span
                 style={{

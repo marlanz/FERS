@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, X, RotateCcw, Filter } from "lucide-react";
-import { EquipmentStatus } from "@/types/equipment";
+
+import { EQUIPMENT_STATUS_OPTIONS } from "@/lib/constants/equipment-status";
 
 export interface FilterState {
   factories: string[];
@@ -256,12 +257,6 @@ export default function Filters({
   onFiltersChange,
 }: FiltersProps) {
   const years = produceYears.map(String);
-  const statuses: { key: EquipmentStatus; translate: string }[] = [
-    { key: "active", translate: "Đang hoạt động" },
-    { key: "inactive", translate: "Ngưng hoạt động" },
-    { key: "sold", translate: "Đã thanh lí" },
-    { key: "pending-investment", translate: "Dự kiến đầu tư" },
-  ];
 
   const hasFilters =
     filters.factories.length > 0 ||
@@ -340,7 +335,7 @@ export default function Filters({
       />
       <MultiSelect
         label="Trạng thái"
-        options={statuses.map((s) => ({ label: s.translate, value: s.key }))}
+        options={EQUIPMENT_STATUS_OPTIONS.map((s) => ({ label: s.label, value: s.value }))}
         selected={filters.statuses}
         onChange={(v) => onFiltersChange({ ...filters, statuses: v })}
       />

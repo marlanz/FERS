@@ -1,9 +1,8 @@
-export type EquipmentStatus =
-  | "active"
-  | "maintenance"
-  | "inactive"
-  | "sold"
-  | "pending-investment";
+// Imported from the centralized status module and re-exported so that all
+// existing `import type { EquipmentStatus } from "@/types/equipment"` imports
+// continue to work without any path changes across the codebase.
+import type { EquipmentStatus } from "@/lib/constants/equipment-status";
+export type { EquipmentStatus };
 
 export interface EquipmentGroup {
   level1: string;

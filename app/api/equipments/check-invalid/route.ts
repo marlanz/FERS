@@ -111,8 +111,9 @@ export async function POST(req: Request) {
         return;
       }
 
-      // duplicate checking
-      const code = result.normalizedCode;
+      // duplicate checking — at this point result.valid === true
+      const validResult = result as { type: "valid"; valid: true; normalizedCode: string };
+      const code = validResult.normalizedCode;
 
       if (!seenCodes.has(code)) {
         seenCodes.set(code, []);

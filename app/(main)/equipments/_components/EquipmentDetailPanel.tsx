@@ -17,37 +17,9 @@ import {
   FileText,
   Activity,
 } from "lucide-react";
-import type { Equipment, EquipmentStatus } from "@/types/equipment";
+import type { Equipment } from "@/types/equipment";
+import { getStatusMeta } from "@/lib/constants/equipment-status";
 
-const STATUS_CFG: Record<
-  EquipmentStatus,
-  { label: string; color: string; bg: string; border: string }
-> = {
-  active: {
-    label: "Hoạt động",
-    color: "#059669",
-    bg: "rgba(16,185,129,0.1)",
-    border: "rgba(16,185,129,0.3)",
-  },
-  "pending-investment": {
-    label: "Dự kiến đầu tư",
-    color: "#d97706",
-    bg: "rgba(245,158,11,0.1)",
-    border: "rgba(245,158,11,0.3)",
-  },
-  sold: {
-    label: "Đã thanh lý",
-    color: "#2563eb",
-    bg: "rgba(59,130,246,0.1)",
-    border: "rgba(59,130,246,0.3)",
-  },
-  inactive: {
-    label: "Ngưng hoạt động",
-    color: "#6b7280",
-    bg: "rgba(107,114,128,0.1)",
-    border: "rgba(107,114,128,0.3)",
-  },
-};
 
 function InfoRow({
   label,
@@ -147,7 +119,7 @@ export default function EquipmentDetailPanel({
 }) {
   if (!equipment) return null;
   const status = equipment.status ?? "active";
-  const sCfg = STATUS_CFG[status];
+  const statusMeta = getStatusMeta(status);
 
   return (
     <>
@@ -222,12 +194,12 @@ export default function EquipmentDetailPanel({
                     fontWeight: 600,
                     padding: "2px 8px",
                     borderRadius: "9999px",
-                    background: sCfg.bg,
-                    color: sCfg.color,
-                    border: `1px solid ${sCfg.border}`,
+                    background: statusMeta.bg,
+                    color: statusMeta.color,
+                    border: `1px solid ${statusMeta.color}30`,
                   }}
                 >
-                  ● {sCfg.label}
+                  ● {statusMeta.translate}
                 </span>
               </div>
               <h2
@@ -344,7 +316,7 @@ export default function EquipmentDetailPanel({
           <Section icon={<Tag size={14} />} title="Thông tin chung">
             <InfoRow label="Mã MMTB" value={equipment.equipmentCode} />
             <InfoRow label="Tên MMTB" value={equipment.equipmentName} />
-            <InfoRow label="Trạng thái" value={sCfg.label} />
+            <InfoRow label="Trạng thái" value={statusMeta.translate} />
             <InfoRow label="Xưởng" value={equipment.installationLocation} />
             {equipment.note && <InfoRow label="Notes" value={equipment.note} />}
           </Section>

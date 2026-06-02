@@ -9,10 +9,10 @@ import {
   StatusDistributionChart,
   TopGroupsChart,
   WorkCenterChart,
-  ProduceYearChart,
 } from "@/components/Charts";
 import EquipmentTable from "@/components/EquipmentTable";
 import DetailDrawer from "@/components/DetailDrawer";
+import { EQUIPMENT_STATUSES } from "@/lib/constants/equipment-status";
 
 interface DashboardContentProps {
   /** Pre-fetched equipment data from the server (replaces static mock data). */
@@ -122,22 +122,25 @@ export default function DashboardContent({
   }, [filtered]);
 
   const statusDist = useMemo(() => {
-    const map: Record<string, number> = {
-      Active: 0,
-      Maintenance: 0,
-      Inactive: 0,
-      "pending-investment": 0,
-    };
+    // Count each status in the filtered dataset
+    const counts: Record<string, number> = {};
     filtered.forEach((d) => {
       const s = d.status || "active";
-      if (s === "active") map.Active++;
-      else if (s === "maintenance") map.Maintenance++;
-      else if (s === "inactive") map.Inactive++;
-      else if (s === "pending-investment") map["pending-investment"]++;
+      counts[s] = (counts[s] || 0) + 1;
     });
-    return Object.entries(map)
-      .filter(([, v]) => v > 0)
-      .map(([name, value]) => ({ name, value }));
+    // Build bar chart data from the centralized config (preserves order, skips zero)
+    return (Object.keys(EQUIPMENT_STATUSES) as (keyof typeof EQUIPMENT_STATUSES)[]).flatMap(
+      (key) => {
+        const count = counts[key] ?? 0;
+        if (count === 0) return [];
+        return [{
+          status: key,
+          label: EQUIPMENT_STATUSES[key].translate,
+          count,
+          color: EQUIPMENT_STATUSES[key].color,
+        }];
+      }
+    );
   }, [filtered]);
 
   const topGroups = useMemo(() => {
@@ -214,13 +217,13 @@ export default function DashboardContent({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
+          gridTemplateColumns: "1fr 1fr ",
           gap: "16px",
         }}
       >
         <EquipmentByFactoryChart data={byFactory} />
         <StatusDistributionChart data={statusDist} />
-        <ProduceYearChart data={produceYearData} />
+        {/* <ProduceYearChart data={produceYearData} /> */}
       </div>
 
       {/* Charts Row 2 */}
