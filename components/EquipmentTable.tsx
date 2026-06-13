@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   ChevronUp,
   ChevronDown,
@@ -172,6 +172,11 @@ export default function EquipmentTable({
   const [pageSize, setPageSize] = useState(10);
   const [expanded, setExpanded] = useState<string | null>(null);
 
+  // Reset page to 1 when search value changes
+  useEffect(() => {
+    setPage(1);
+  }, [searchValue]);
+
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortDir((d) => (d === "asc" ? "desc" : d === "desc" ? null : "asc"));
@@ -209,6 +214,14 @@ export default function EquipmentTable({
   }, [filtered, sortKey, sortDir]);
 
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+
+  // Clamp page to totalPages if it exceeds it (e.g. after search or data changes)
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [totalPages, page]);
+
   const pageData = sorted.slice((page - 1) * pageSize, page * pageSize);
 
   const toggleSelect = (code: string, e: React.MouseEvent) => {

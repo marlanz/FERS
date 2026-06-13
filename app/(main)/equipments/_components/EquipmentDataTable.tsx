@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   ChevronUp,
   ChevronDown,
@@ -11,7 +11,7 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-import type { Equipment } from "@/types/equipment";
+import type { Equipment, EquipmentFilters } from "@/types/equipment";
 import { getEquipmentDocumentId } from "@/lib/equipment/equipmentRowId";
 import { getStatusMeta } from "@/lib/constants/equipment-status";
 import StatusBadge from "@/components/equipment/StatusBadge";
@@ -201,6 +201,8 @@ interface Props {
   /** MongoDB document ids (`_id`), not equipment codes. */
   selectedIds: Set<string>;
   onSelectionChange: (ids: Set<string>) => void;
+  searchQuery?: string;
+  filters?: EquipmentFilters;
 }
 
 export default function EquipmentDataTable({
@@ -209,12 +211,19 @@ export default function EquipmentDataTable({
   onRowClick,
   selectedIds,
   onSelectionChange,
+  searchQuery,
+  filters,
 }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>("no");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
+
+  // Reset page to 1 when search query or filters change
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, filters]);
 
   const rowPad =
     density === "compact"
@@ -246,6 +255,14 @@ export default function EquipmentDataTable({
   }, [data, sortKey, sortDir]);
 
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+
+  // Clamp page to totalPages if it exceeds it (e.g., after filter changes or deletions)
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [totalPages, page]);
+
   const pageData = sorted.slice((page - 1) * pageSize, page * pageSize);
 
   const allPageSelected =

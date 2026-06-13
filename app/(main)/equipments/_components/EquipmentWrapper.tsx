@@ -554,6 +554,8 @@ export function EquipmentPageInner() {
               onRowClick={handleRowClick}
               selectedIds={selectedIds}
               onSelectionChange={setSelectedIds}
+              searchQuery={debouncedSearch}
+              filters={filters}
             />
           )}
         </div>
