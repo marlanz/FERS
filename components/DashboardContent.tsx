@@ -96,7 +96,8 @@ export default function DashboardContent({
     const totalWorkCenters = new Set(
       filtered.map((d) => d.organization.workCenter),
     ).size;
-    const totalRegisteredEquipment = initialData.filter(
+    // Keep denominator aligned with the same filtered KPI dataset.
+    const totalRegisteredEquipment = filtered.filter(
       (d) => d.status !== "pending-investment",
     ).length;
     const activeEquipment = filtered.filter(
@@ -181,25 +182,26 @@ export default function DashboardContent({
     }));
   }, [filtered]);
 
-  const produceYearData = useMemo(() => {
-    const map: Record<number, number> = {};
-    filtered.forEach((d) => {
-      const year = d.manufacturer.produceYear;
-      if (year === null) return;
-      map[year] = (map[year] || 0) + 1;
-    });
-    return Object.entries(map)
-      .map(([year, count]) => ({ year: Number(year), count }))
-      .sort((a, b) => a.year - b.year);
-  }, [filtered]);
+  // const produceYearData = useMemo(() => {
+  //   const map: Record<number, number> = {};
+  //   filtered.forEach((d) => {
+  //     const year = d.manufacturer.produceYear;
+  //     if (year === null) return;
+  //     map[year] = (map[year] || 0) + 1;
+  //   });
+  //   return Object.entries(map)
+  //     .map(([year, count]) => ({ year: Number(year), count }))
+  //     .sort((a, b) => a.year - b.year);
+  // }, [filtered]);
 
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: "20px",
-        padding: "20px",
+        gap: "10px",
+        padding: "10px 12px 12px",
+        minHeight: "100%",
       }}
     >
       {/* KPI Cards */}
@@ -222,22 +224,14 @@ export default function DashboardContent({
       /> */}
 
       {/* Charts Row 1 */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr ",
-          gap: "16px",
-        }}
-      >
+      <div className="grid grid-cols-1 gap-2 xl:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)]">
         <EquipmentByFactoryChart data={byFactory} />
         <StatusDistributionChart data={statusDist} />
         {/* <ProduceYearChart data={produceYearData} /> */}
       </div>
 
       {/* Charts Row 2 */}
-      <div
-        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}
-      >
+      <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
         <TopGroupsChart data={topGroups} />
         <WorkCenterChart data={wcChartData} factories={factories} />
       </div>

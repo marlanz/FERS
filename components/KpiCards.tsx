@@ -35,26 +35,14 @@ function KpiCard({
     <div
       className="card"
       style={{
-        padding: "20px",
+        padding: "12px 14px",
         display: "flex",
         flexDirection: "column",
-        gap: "12px",
+        gap: "8px",
         position: "relative",
         overflow: "hidden",
-        transition: "all 0.2s ease",
+        minHeight: "112px",
         cursor: "default",
-      }}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget;
-        el.style.transform = "translateY(-2px)";
-        el.style.boxShadow = accent
-          ? "0 8px 24px rgba(233,34,39,0.2)"
-          : "0 8px 24px rgba(0,0,0,0.1)";
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget;
-        el.style.transform = "translateY(0)";
-        el.style.boxShadow = "";
       }}
     >
       {/* Accent bar */}
@@ -82,10 +70,10 @@ function KpiCard({
         <div>
           <div
             style={{
-              fontSize: "12px",
-              fontWeight: 500,
+              fontSize: "11px",
+              fontWeight: 600,
               color: "var(--color-text-secondary)",
-              marginBottom: "6px",
+              marginBottom: "4px",
               textTransform: "uppercase",
               letterSpacing: "0.05em",
             }}
@@ -94,7 +82,7 @@ function KpiCard({
           </div>
           <div
             style={{
-              fontSize: "32px",
+              fontSize: "26px",
               fontWeight: 800,
               color: accent ? "rgb(233,34,39)" : "var(--color-text-primary)",
               lineHeight: 1,
@@ -104,9 +92,9 @@ function KpiCard({
           </div>
           <div
             style={{
-              fontSize: "12px",
-              color: "var(--color-text-muted)",
-              marginTop: "4px",
+              fontSize: "11px",
+              color: "var(--color-text-secondary)",
+              marginTop: "2px",
             }}
           >
             {subtitle}
@@ -114,9 +102,9 @@ function KpiCard({
         </div>
         <div
           style={{
-            width: "44px",
-            height: "44px",
-            borderRadius: "10px",
+            width: "34px",
+            height: "34px",
+            borderRadius: "8px",
             background: accent
               ? "rgba(233,34,39,0.1)"
               : "var(--color-surface-2)",
@@ -131,7 +119,7 @@ function KpiCard({
         </div>
       </div>
 
-      <div
+      {/* <div
         style={{
           display: "flex",
           alignItems: "center",
@@ -164,7 +152,7 @@ function KpiCard({
             color={accent ? "rgb(233,34,39)" : "#6b7280"}
           />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
@@ -188,8 +176,8 @@ export default function KpiCards({
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(5, 1fr)",
-        gap: "16px",
+        gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+        gap: "8px",
       }}
     >
       <KpiCard
@@ -220,7 +208,11 @@ export default function KpiCards({
       <KpiCard
         title="Thiết bị hoạt động"
         value={activeEquipment}
-        subtitle={`${Math.round((activeEquipment / totalEquipment) * 100)}% Số thiết bị hoạt động`}
+        subtitle={`${
+          totalEquipment > 0
+            ? Math.round((activeEquipment / totalEquipment) * 100)
+            : 0
+        }% Số thiết bị hoạt động`}
         trend={3.4}
         sparkData={[14, 16, 15, 18, 19, 20, 21, activeEquipment]}
         icon={<CheckCircle2 size={20} />}

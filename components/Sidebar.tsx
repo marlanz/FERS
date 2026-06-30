@@ -1,35 +1,96 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
-  Cpu,
-  Factory,
-  Layers,
-  GitBranch,
-  Wrench,
-  BarChart3,
-  FileSpreadsheet,
-  Settings,
+  Activity,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Cpu,
+  Droplet,
+  Factory,
+  FileText,
+  HdmiPort,
+  Layers,
+  LayoutDashboard,
+  LayoutDashboardIcon,
+  PanelsTopLeft,
+  Wrench,
   Zap,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useSidebarStore } from "@/lib/store/useSidebarStore";
 import Image from "next/image";
 
-const navItems = [
-  { href: "dashboard", label: "Bảng thống kê", icon: LayoutDashboard },
-  { href: "equipments", label: "Danh sách thiết bị", icon: Cpu },
-  { href: "equipment-groups", label: "Nhóm thiết bị", icon: Layers },
-  { href: "factories", label: "Quản lý nhà máy", icon: Factory },
-  { href: "welding", label: "Quản lí thiết bị hàn", icon: Factory },
+type SidebarLinkItem = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+};
+
+type SidebarGroupItem = {
+  id: string;
+  title: string;
+  icon: LucideIcon;
+  children: SidebarLinkItem[];
+};
+
+const menuGroups: SidebarGroupItem[] = [
+  {
+    id: "statistics",
+    title: "Bảng thống kê",
+    icon: LayoutDashboardIcon,
+    children: [
+      { href: "dashboard", label: "Thống kê MMTB", icon: Cpu },
+      { href: "iot-realtime", label: "IOT thời gian thực", icon: HdmiPort },
+    ],
+  },
+  {
+    id: "factoryreport",
+    title: "Báo cáo nhà máy",
+    icon: Factory,
+    children: [
+      { href: "electricity", label: "Báo cáo chi phí điện", icon: Zap },
+      { href: "maintenance", label: "Báo cáo bảo trì", icon: Wrench },
+      {
+        href: "water",
+        label: "Báo cáo chi phí nước",
+        icon: Droplet,
+      },
+    ],
+  },
+  {
+    id: "eqreport",
+    title: "Báo cáo MMTB",
+    icon: FileText,
+    children: [
+      { href: "overall", label: "Tổng quan", icon: PanelsTopLeft },
+      { href: "equipments", label: "Danh sách thiết bị", icon: Cpu },
+      { href: "equipment-groups", label: "Nhóm thiết bị", icon: Layers },
+    ],
+  },
 ];
+
+const isActivePath = (currentPathname: string, href: string) => {
+  const targetPath = `/${href}`;
+
+  return (
+    currentPathname === targetPath ||
+    currentPathname.startsWith(`${targetPath}/`)
+  );
+};
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { collapsed, setCollapsed, hydrated } = useSidebarStore();
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
+    {
+      realtime: true,
+      report: true,
+    },
+  );
 
   if (!hydrated) return null;
 
@@ -46,7 +107,6 @@ export default function Sidebar() {
         overflow: "hidden",
       }}
     >
-      {/* Logo */}
       <div
         style={{
           minHeight: "72px",
@@ -103,7 +163,6 @@ export default function Sidebar() {
         )}
       </div>
 
-      {/* Navigation */}
       <nav
         style={{
           flex: 1,
@@ -113,38 +172,107 @@ export default function Sidebar() {
           gap: "2px",
         }}
       >
-        {navItems.map((item) => {
-          const Icon = item.icon;
+        {/* <Link
+          href="/dashboard"
+          className={`sidebar-item${isActivePath(pathname, "dashboard") ? " active" : ""}`}
+          style={{
+            justifyContent: collapsed ? "center" : "flex-start",
+            padding: collapsed ? "8px" : "8px 12px",
+            marginBottom: "2px",
+          }}
+          title={collapsed ? "Bảng thống kê" : undefined}
+        >
+          <LayoutDashboard
+            size={18}
+            strokeWidth={isActivePath(pathname, "dashboard") ? 2.5 : 2}
+            className="icon"
+          />
+          {!collapsed && <span>Bảng thống kê</span>}
+        </Link> */}
 
-          const formattedPathname = `/${item.href}`;
-
-          const isActive = pathname === formattedPathname;
+        {menuGroups.map((group) => {
+          const Icon = group.icon;
+          const hasActiveChild = group.children.some((child) =>
+            isActivePath(pathname, child.href),
+          );
+          const isExpanded =
+            (expandedGroups[group.id] ?? false) || hasActiveChild;
 
           return (
-            <Link
-              key={item.href}
-              href={`/${item.href}`}
-              className={`sidebar-item${isActive ? " active" : ""}`}
-              style={{
-                justifyContent: collapsed ? "center" : "flex-start",
-                padding: collapsed ? "8px" : "8px 12px",
-              }}
-              title={collapsed ? item.label : undefined}
-              // onClick={() => setPage(PAGE_TITLES[item.href])}
-            >
-              <Icon
-                size={18}
-                strokeWidth={isActive ? 2.5 : 2}
-                className="icon"
-              />
+            <div key={group.id}>
+              <button
+                type="button"
+                className={`sidebar-item sidebar-group-button${hasActiveChild ? " active" : ""}`}
+                onClick={() =>
+                  setExpandedGroups((previous) => ({
+                    ...previous,
+                    [group.id]: !previous[group.id],
+                  }))
+                }
+                style={{
+                  justifyContent: collapsed ? "center" : "space-between",
+                  padding: collapsed ? "8px" : "8px 12px",
+                  width: "100%",
+                  border: "none",
+                  background: "transparent",
+                }}
+                title={collapsed ? group.title : undefined}
+              >
+                <span
+                  style={{ display: "flex", alignItems: "center", gap: "10px" }}
+                >
+                  <Icon
+                    size={18}
+                    strokeWidth={hasActiveChild ? 2.5 : 2}
+                    className="icon"
+                  />
+                  {!collapsed && <span>{group.title}</span>}
+                </span>
+                {!collapsed && (
+                  <ChevronDown
+                    size={16}
+                    className={`sidebar-group-chevron${isExpanded ? " expanded" : ""}`}
+                  />
+                )}
+              </button>
 
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
+              {!collapsed && (
+                <div
+                  className={`sidebar-group-content${isExpanded ? " expanded" : ""}`}
+                >
+                  <div className="sidebar-group-content-inner">
+                    {group.children.map((item) => {
+                      const ChildIcon = item.icon;
+                      const isActive = isActivePath(pathname, item.href);
+
+                      return (
+                        <Link
+                          key={item.href}
+                          href={`/${item.href}`}
+                          className={`sidebar-item sidebar-child-item${isActive ? " active" : ""}`}
+                          style={{
+                            justifyContent: "flex-start",
+                            padding: "7px 10px 7px 14px",
+                            marginLeft: "8px",
+                          }}
+                        >
+                          <ChildIcon
+                            size={16}
+                            strokeWidth={isActive ? 2.5 : 2}
+                            className="icon"
+                          />
+                          <span>{item.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
           );
         })}
       </nav>
 
-      {/* Collapse button */}
       <button
         onClick={() => setCollapsed(!collapsed)}
         style={{

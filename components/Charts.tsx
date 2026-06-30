@@ -53,24 +53,25 @@ function ChartCard({
   title,
   subtitle,
   children,
-  height = 260,
+  height = 290,
 }: ChartCardProps) {
   return (
     <div
       className="card"
       style={{
-        padding: "20px",
+        padding: "12px",
         display: "flex",
         flexDirection: "column",
-        gap: "16px",
+        gap: "8px",
       }}
     >
       <div>
         <div
           style={{
             fontWeight: 700,
-            fontSize: "15px",
+            fontSize: "14px",
             color: "var(--color-text-primary)",
+            lineHeight: 1.2,
           }}
         >
           {title}
@@ -79,15 +80,15 @@ function ChartCard({
           <div
             style={{
               fontSize: "12px",
-              color: "var(--color-text-muted)",
-              marginTop: "2px",
+              color: "var(--color-text-secondary)",
+              marginTop: "1px",
             }}
           >
             {subtitle}
           </div>
         )}
       </div>
-      <div style={{ height }}>{children}</div>
+      <div style={{ height, minHeight: 0 }}>{children}</div>
     </div>
   );
 }
@@ -165,7 +166,7 @@ export function EquipmentByFactoryChart({ data }: ByFactoryProps) {
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
-          margin={{ top: 4, right: 16, left: -10, bottom: 0 }}
+          margin={{ top: 2, right: 6, left: -18, bottom: 0 }}
         >
           <CartesianGrid
             strokeDasharray="3 3"
@@ -218,7 +219,7 @@ export function StatusDistributionChart({ data }: StatusProps) {
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
-          margin={{ top: 4, right: 16, left: -10, bottom: 24 }}
+          margin={{ top: 2, right: 6, left: -18, bottom: 12 }}
         >
           <CartesianGrid
             strokeDasharray="3 3"
@@ -278,7 +279,7 @@ export function TopGroupsChart({ data }: GroupProps) {
         <BarChart
           data={display}
           layout="vertical"
-          margin={{ top: 0, right: 40, left: 0, bottom: 0 }}
+          margin={{ top: 0, right: 20, left: -10, bottom: 0 }}
         >
           <CartesianGrid
             strokeDasharray="3 3"
@@ -344,7 +345,7 @@ export function WorkCenterChart({ data, factories }: WorkCenterProps) {
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
-          margin={{ top: 4, right: 16, left: -10, bottom: 40 }}
+          margin={{ top: 2, right: 8, left: -18, bottom: 28 }}
         >
           <CartesianGrid
             strokeDasharray="3 3"

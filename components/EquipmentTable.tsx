@@ -247,15 +247,15 @@ export default function EquipmentTable({
       {/* Table Header Bar */}
       <div
         style={{
-          padding: "14px 16px",
+          padding: "10px 12px",
           borderBottom: "1px solid var(--color-border)",
           display: "flex",
           alignItems: "center",
-          gap: "12px",
+          gap: "8px",
           flexWrap: "wrap",
         }}
       >
-        <div style={{ fontWeight: 700, fontSize: "15px" }}>
+        <div style={{ fontWeight: 700, fontSize: "14px" }}>
           Equipment Registry
         </div>
         <span
@@ -464,7 +464,7 @@ export default function EquipmentTable({
       {/* Pagination */}
       <div
         style={{
-          padding: "12px 16px",
+          padding: "8px 12px",
           borderTop: "1px solid var(--color-border)",
           display: "flex",
           alignItems: "center",
