@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   title: "Equipment Management Dashboard | EMS",
   description:
     "Enterprise Equipment Management System — Monitor, manage, and analyze manufacturing equipment across all factories.",
+  icons: {
+    icon: "/logo-01.png",
+  },
 };
 
 export default function RootLayout({
