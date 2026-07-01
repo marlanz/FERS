@@ -6,16 +6,37 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 const client = new MongoClient(process.env.MONGODB_URI!);
 const db = client.db();
 
+const getBaseURL = () => {
+  if (process.env.BETTER_AUTH_URL && process.env.BETTER_AUTH_URL.startsWith("https")) {
+    return process.env.BETTER_AUTH_URL;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return process.env.NODE_ENV === "production"
+    ? "https://dashboard-ddc.vercel.app"
+    : "http://localhost:3000";
+};
+
+const resolvedBaseURL = getBaseURL();
+const resolvedTrustedOrigins = [
+  "http://localhost:3000",
+  "https://dashboard-ddc.vercel.app",
+];
+if (process.env.VERCEL_URL) {
+  resolvedTrustedOrigins.push(`https://${process.env.VERCEL_URL}`);
+}
+if (process.env.BETTER_AUTH_URL) {
+  resolvedTrustedOrigins.push(process.env.BETTER_AUTH_URL);
+}
+
 export const auth = betterAuth({
   database: mongodbAdapter(db, {
     // Optional: if you don't provide a client, database transactions won't be enabled.
     client,
   }),
-  baseURL: process.env.BETTER_AUTH_URL || "https://dashboard-ddc.vercel.app",
-  trustedOrigins: [
-    process.env.BETTER_AUTH_URL || "https://dashboard-ddc.vercel.app",
-    "http://localhost:3000",
-  ],
+  baseURL: resolvedBaseURL,
+  trustedOrigins: resolvedTrustedOrigins,
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
