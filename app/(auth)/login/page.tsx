@@ -1,7 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import LoginButton from "./_component/login-button";
-import GoogleAuthErrorChecker from "./_component/google-auth-error-checker";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -80,7 +79,6 @@ export default function LoginPage() {
               }}
             >
               <LoginButton />
-              <GoogleAuthErrorChecker />
               <div
                 style={{
                   marginTop: 16,
