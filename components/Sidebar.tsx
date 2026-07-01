@@ -87,9 +87,8 @@ export default function Sidebar() {
   const { collapsed, setCollapsed, hydrated } = useSidebarStore();
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
     {
-      factoryreport: true,
-      eqreport: true,
-      statistics: true,
+      realtime: true,
+      report: true,
     },
   );
 
@@ -159,7 +158,7 @@ export default function Sidebar() {
               boxSizing: "border-box",
             }}
           >
-            Hệ thống Quản lí báo cáo và máy móc thiết bị
+            Hệ thống Quản lí thiết bị Cơ khí
           </div>
         )}
       </div>
@@ -274,7 +273,7 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* <button
+      <button
         onClick={() => setCollapsed(!collapsed)}
         style={{
           margin: "12px 8px",
@@ -305,7 +304,7 @@ export default function Sidebar() {
             </span>
           </>
         )}
-      </button> */}
+      </button>
     </aside>
   );
 }
