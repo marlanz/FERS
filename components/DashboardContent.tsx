@@ -91,8 +91,12 @@ export default function DashboardContent({
 
   // KPI stats derived from filtered data
   const kpi = useMemo(() => {
-    const totalFactories = new Set(filtered.map((d) => d.organization.factory))
-      .size;
+    const totalFactories = new Set(
+      filtered
+        .map((d) => d.organization.factory.toLowerCase())
+        .filter((d) => d != "dự kiến đầu tư"),
+    ).size;
+
     const totalWorkCenters = new Set(
       filtered.map((d) => d.organization.workCenter),
     ).size;

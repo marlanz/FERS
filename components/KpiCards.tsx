@@ -70,10 +70,10 @@ function KpiCard({
         <div>
           <div
             style={{
-              fontSize: "11px",
+              fontSize: "14px",
               fontWeight: 600,
               color: "var(--color-text-secondary)",
-              marginBottom: "4px",
+              marginBottom: "8px",
               textTransform: "uppercase",
               letterSpacing: "0.05em",
             }}
@@ -82,7 +82,7 @@ function KpiCard({
           </div>
           <div
             style={{
-              fontSize: "26px",
+              fontSize: "28px",
               fontWeight: 800,
               color: accent ? "rgb(233,34,39)" : "var(--color-text-primary)",
               lineHeight: 1,
@@ -92,9 +92,9 @@ function KpiCard({
           </div>
           <div
             style={{
-              fontSize: "11px",
+              fontSize: "14px",
               color: "var(--color-text-secondary)",
-              marginTop: "2px",
+              marginTop: "6px",
             }}
           >
             {subtitle}

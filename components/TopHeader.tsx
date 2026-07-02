@@ -58,7 +58,7 @@ export default function TopHeader({ darkMode, onToggleDark }: TopHeaderProps) {
       <div style={{ flex: "0 0 auto" }}>
         <h1
           style={{
-            fontSize: "16px",
+            fontSize: "18px",
             fontWeight: 700,
             color: "var(--color-text-primary)",
             margin: 0,

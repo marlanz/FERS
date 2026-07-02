@@ -31,11 +31,13 @@ type SidebarLinkItem = {
 };
 
 type SidebarGroupItem = {
-  id: string;
+  id: MenuItem;
   title: string;
   icon: LucideIcon;
   children: SidebarLinkItem[];
 };
+
+type MenuItem = "statistics" | "factoryreport" | "eqreport";
 
 const menuGroups: SidebarGroupItem[] = [
   {
@@ -85,12 +87,13 @@ const isActivePath = (currentPathname: string, href: string) => {
 export default function Sidebar() {
   const pathname = usePathname();
   const { collapsed, setCollapsed, hydrated } = useSidebarStore();
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
-    {
-      realtime: true,
-      report: true,
-    },
-  );
+  const [expandedGroups, setExpandedGroups] = useState<
+    Record<MenuItem, boolean>
+  >({
+    factoryreport: true,
+    eqreport: true,
+    statistics: true,
+  });
 
   if (!hydrated) return null;
 
@@ -158,7 +161,7 @@ export default function Sidebar() {
               boxSizing: "border-box",
             }}
           >
-            Hệ thống Quản lí thiết bị Cơ khí
+            Hệ thống Báo cáo và Quản lí thiết bị Cơ khí DDC
           </div>
         )}
       </div>

@@ -4,7 +4,7 @@ import "./globals.css";
 import QueryProvider from "@/lib/QueryProvider";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 const inter = Inter({
   variable: "--font-inter",
@@ -13,9 +13,14 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Equipment Management Dashboard | EMS",
+  title: "Hệ thống DDC",
   description:
     "Enterprise Equipment Management System — Monitor, manage, and analyze manufacturing equipment across all factories.",
+  icons: {
+    icon: "/logo-01.png",
+    shortcut: "/logo-01.png",
+    apple: "/logo-01.png",
+  },
 };
 
 export default function RootLayout({

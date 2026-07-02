@@ -62,14 +62,14 @@ function ChartCard({
         padding: "12px",
         display: "flex",
         flexDirection: "column",
-        gap: "8px",
+        gap: "12px",
       }}
     >
       <div>
         <div
           style={{
             fontWeight: 700,
-            fontSize: "14px",
+            fontSize: "16px",
             color: "var(--color-text-primary)",
             lineHeight: 1.2,
           }}
@@ -79,7 +79,7 @@ function ChartCard({
         {subtitle && (
           <div
             style={{
-              fontSize: "12px",
+              fontSize: "14px",
               color: "var(--color-text-secondary)",
               marginTop: "1px",
             }}
@@ -271,8 +271,8 @@ export function TopGroupsChart({ data }: GroupProps) {
   const display = data.slice(0, 10);
   return (
     <ChartCard
-      title="Top Equipment Groups"
-      subtitle="Machine quantity and percentage"
+      title="Thống kê thiết bị theo nhóm"
+      subtitle="Số lượng và tỷ lệ thiết bị theo nhóm"
       height={300}
     >
       <ResponsiveContainer width="100%" height="100%">
@@ -338,8 +338,8 @@ export function WorkCenterChart({ data, factories }: WorkCenterProps) {
   });
   return (
     <ChartCard
-      title="Equipment by Work Center"
-      subtitle="Stacked comparison across factories"
+      title="Thiết bị theo tổ/xưởng sản xuất"
+      subtitle="So sánh số lượng thiết bị giữa các tổ/xưởng"
       height={300}
     >
       <ResponsiveContainer width="100%" height="100%">
